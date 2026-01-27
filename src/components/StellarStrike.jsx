@@ -2,10 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 
 const StellarStrike = () => {
   const canvasRef = useRef(null);
+  const containerRef = useRef(null);
   const [gameState, setGameState] = useState('start');
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
   const [level, setLevel] = useState(1);
+  const [canvasSize, setCanvasSize] = useState({ width: 800, height: 600 });
   const gameLoopRef = useRef(null);
   const gameDataRef = useRef({
     player: { x: 375, y: 500, width: 60, height: 60, speed: 5 },
@@ -19,6 +21,29 @@ const StellarStrike = () => {
 
   const imagesRef = useRef({});
   const [imagesLoaded, setImagesLoaded] = useState(false);
+
+  // Handle responsive canvas sizing
+  useEffect(() => {
+    const updateCanvasSize = () => {
+      const maxWidth = Math.min(window.innerWidth - 40, 800);
+      const maxHeight = Math.min(window.innerHeight - 200, 600);
+      const aspectRatio = 800 / 600;
+      
+      let width = maxWidth;
+      let height = width / aspectRatio;
+      
+      if (height > maxHeight) {
+        height = maxHeight;
+        width = height * aspectRatio;
+      }
+      
+      setCanvasSize({ width: Math.floor(width), height: Math.floor(height) });
+    };
+
+    updateCanvasSize();
+    window.addEventListener('resize', updateCanvasSize);
+    return () => window.removeEventListener('resize', updateCanvasSize);
+  }, []);
 
   useEffect(() => {
     const loadImages = () => {
@@ -317,57 +342,66 @@ const StellarStrike = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-slate-900 to-black">
-      <div className="relative">
+    <div className="flex flex-col items-center justify-center min-h-screen w-full bg-gradient-to-b from-slate-900 to-black p-2 sm:p-4 overflow-hidden">
+      <div ref={containerRef} className="relative w-full max-w-[800px] flex flex-col items-center">
         <canvas
           ref={canvasRef}
           width={800}
           height={600}
-          className="border-4 border-cyan-500 rounded-lg shadow-2xl"
-          style={{ display: gameState === 'playing' ? 'block' : 'none' }}
+          className="border-2 sm:border-4 border-cyan-500 rounded-lg shadow-2xl w-full h-auto"
+          style={{ 
+            display: gameState === 'playing' ? 'block' : 'none',
+            maxWidth: '100%'
+          }}
         />
 
         {gameState === 'start' && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 via-purple-900 to-black border-4 border-cyan-500 rounded-lg w-[800px] h-[600px]">
-            <h1 className="text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 mb-8 tracking-wider animate-pulse">
+          <div 
+            className="w-full flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 via-purple-900 to-black border-2 sm:border-4 border-cyan-500 rounded-lg shadow-2xl"
+            style={{ aspectRatio: '4/3', maxHeight: '90vh' }}
+          >
+            <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 mb-4 sm:mb-8 tracking-wider animate-pulse px-4 text-center">
               STELLAR STRIKE
             </h1>
-            <p className="text-cyan-300 text-xl mb-8">Defend the Galaxy</p>
+            <p className="text-cyan-300 text-base sm:text-xl mb-4 sm:mb-8">Defend the Galaxy</p>
             <button
               onClick={startGame}
-              className="px-10 py-4 bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white text-2xl font-bold rounded-lg transition-all shadow-lg hover:shadow-cyan-500/50 transform hover:scale-105"
+              className="px-6 sm:px-10 py-3 sm:py-4 bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white text-lg sm:text-2xl font-bold rounded-lg transition-all shadow-lg hover:shadow-cyan-500/50 transform hover:scale-105"
             >
               START GAME
             </button>
-            <div className="mt-8 text-cyan-300 text-center space-y-2">
-              <p className="text-lg">⌨️ Arrow Keys - Move | Spacebar - Shoot</p>
-              <p className="text-sm">ESC - Pause Game</p>
+            <div className="mt-6 sm:mt-8 text-cyan-300 text-center space-y-2 px-4">
+              <p className="text-sm sm:text-lg">⌨️ Arrow Keys - Move | Spacebar - Shoot</p>
+              <p className="text-xs sm:text-sm">ESC - Pause Game</p>
             </div>
             {!imagesLoaded && (
-              <p className="mt-4 text-yellow-400 text-sm">Loading assets...</p>
+              <p className="mt-4 text-yellow-400 text-xs sm:text-sm">Loading assets...</p>
             )}
           </div>
         )}
 
         {gameState === 'paused' && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/90 rounded-lg backdrop-blur-sm">
-            <h2 className="text-6xl font-bold text-cyan-400 mb-12">⏸ PAUSED</h2>
-            <div className="space-y-4">
+          <div 
+            className="absolute inset-0 flex flex-col items-center justify-center bg-black/90 rounded-lg backdrop-blur-sm z-10"
+            style={{ width: '100%', height: '100%' }}
+          >
+            <h2 className="text-4xl sm:text-6xl font-bold text-cyan-400 mb-8 sm:mb-12">⏸ PAUSED</h2>
+            <div className="space-y-3 sm:space-y-4 w-full max-w-xs px-4">
               <button
                 onClick={() => setGameState('playing')}
-                className="block w-64 px-6 py-3 bg-cyan-600 hover:bg-cyan-500 text-white text-xl font-bold rounded-lg transition-all transform hover:scale-105"
+                className="block w-full px-4 sm:px-6 py-2 sm:py-3 bg-cyan-600 hover:bg-cyan-500 text-white text-lg sm:text-xl font-bold rounded-lg transition-all transform hover:scale-105"
               >
                 ▶ RESUME
               </button>
               <button
                 onClick={startGame}
-                className="block w-64 px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white text-xl font-bold rounded-lg transition-all transform hover:scale-105"
+                className="block w-full px-4 sm:px-6 py-2 sm:py-3 bg-purple-600 hover:bg-purple-500 text-white text-lg sm:text-xl font-bold rounded-lg transition-all transform hover:scale-105"
               >
                 🔄 RESTART
               </button>
               <button
                 onClick={() => setGameState('start')}
-                className="block w-64 px-6 py-3 bg-slate-600 hover:bg-slate-500 text-white text-xl font-bold rounded-lg transition-all transform hover:scale-105"
+                className="block w-full px-4 sm:px-6 py-2 sm:py-3 bg-slate-600 hover:bg-slate-500 text-white text-lg sm:text-xl font-bold rounded-lg transition-all transform hover:scale-105"
               >
                 🏠 MAIN MENU
               </button>
@@ -376,23 +410,26 @@ const StellarStrike = () => {
         )}
 
         {gameState === 'gameOver' && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-red-900 via-black to-black border-4 border-red-500 rounded-lg w-[800px] h-[600px]">
-            <h2 className="text-7xl font-bold text-red-500 mb-6 animate-pulse">GAME OVER</h2>
-            <div className="bg-black/50 p-8 rounded-lg mb-8 border border-red-500/50">
-              <p className="text-4xl text-cyan-400 mb-2">Final Score</p>
-              <p className="text-6xl font-bold text-white text-center">{score}</p>
-              <p className="text-xl text-purple-400 mt-2 text-center">Level {level}</p>
+          <div 
+            className="w-full flex flex-col items-center justify-center bg-gradient-to-b from-red-900 via-black to-black border-2 sm:border-4 border-red-500 rounded-lg shadow-2xl p-4"
+            style={{ aspectRatio: '4/3', maxHeight: '90vh' }}
+          >
+            <h2 className="text-4xl sm:text-7xl font-bold text-red-500 mb-4 sm:mb-6 animate-pulse">GAME OVER</h2>
+            <div className="bg-black/50 p-4 sm:p-8 rounded-lg mb-6 sm:mb-8 border border-red-500/50">
+              <p className="text-2xl sm:text-4xl text-cyan-400 mb-2">Final Score</p>
+              <p className="text-4xl sm:text-6xl font-bold text-white text-center">{score}</p>
+              <p className="text-lg sm:text-xl text-purple-400 mt-2 text-center">Level {level}</p>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4 w-full max-w-xs">
               <button
                 onClick={startGame}
-                className="block w-64 px-6 py-3 bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white text-xl font-bold rounded-lg transition-all transform hover:scale-105"
+                className="block w-full px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white text-lg sm:text-xl font-bold rounded-lg transition-all transform hover:scale-105"
               >
                 🎮 PLAY AGAIN
               </button>
               <button
                 onClick={() => setGameState('start')}
-                className="block w-64 px-6 py-3 bg-slate-600 hover:bg-slate-500 text-white text-xl font-bold rounded-lg transition-all transform hover:scale-105"
+                className="block w-full px-4 sm:px-6 py-2 sm:py-3 bg-slate-600 hover:bg-slate-500 text-white text-lg sm:text-xl font-bold rounded-lg transition-all transform hover:scale-105"
               >
                 🏠 MAIN MENU
               </button>
@@ -403,34 +440,37 @@ const StellarStrike = () => {
 
       {gameState === 'playing' && (
         <>
-          <div className="mt-6 flex gap-12 text-cyan-400 text-2xl font-bold">
-            <div className="bg-black/50 px-6 py-3 rounded-lg border border-cyan-500/50">
+          <div className="mt-4 sm:mt-6 flex flex-wrap justify-center gap-3 sm:gap-12 text-cyan-400 text-base sm:text-2xl font-bold w-full max-w-[800px] px-2">
+            <div className="bg-black/50 px-3 sm:px-6 py-2 sm:py-3 rounded-lg border border-cyan-500/50">
               💎 Score: <span className="text-white">{score}</span>
             </div>
-            <div className="bg-black/50 px-6 py-3 rounded-lg border border-red-500/50">
+            <div className="bg-black/50 px-3 sm:px-6 py-2 sm:py-3 rounded-lg border border-red-500/50">
               ❤️ Lives: <span className="text-white">{lives}</span>
             </div>
-            <div className="bg-black/50 px-6 py-3 rounded-lg border border-purple-500/50">
+            <div className="bg-black/50 px-3 sm:px-6 py-2 sm:py-3 rounded-lg border border-purple-500/50">
               ⭐ Level: <span className="text-white">{level}</span>
             </div>
           </div>
 
-          <div className="mt-6 flex gap-4">
+          <div className="mt-4 sm:mt-6 flex gap-2 sm:gap-4 w-full max-w-[800px] px-2 justify-center">
             <button
               onMouseDown={() => handleMobileControl('left')}
-              className="px-8 py-4 bg-cyan-600 hover:bg-cyan-500 text-white text-lg font-bold rounded-lg transition-all transform active:scale-95"
+              onTouchStart={(e) => { e.preventDefault(); handleMobileControl('left'); }}
+              className="px-4 sm:px-8 py-3 sm:py-4 bg-cyan-600 hover:bg-cyan-500 active:bg-cyan-700 text-white text-sm sm:text-lg font-bold rounded-lg transition-all transform active:scale-95 touch-manipulation"
             >
               ← LEFT
             </button>
             <button
               onMouseDown={() => handleMobileControl('fire')}
-              className="px-8 py-4 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white text-lg font-bold rounded-lg transition-all transform active:scale-95"
+              onTouchStart={(e) => { e.preventDefault(); handleMobileControl('fire'); }}
+              className="px-4 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 active:from-red-700 active:to-orange-700 text-white text-sm sm:text-lg font-bold rounded-lg transition-all transform active:scale-95 touch-manipulation"
             >
               🔥 FIRE
             </button>
             <button
               onMouseDown={() => handleMobileControl('right')}
-              className="px-8 py-4 bg-cyan-600 hover:bg-cyan-500 text-white text-lg font-bold rounded-lg transition-all transform active:scale-95"
+              onTouchStart={(e) => { e.preventDefault(); handleMobileControl('right'); }}
+              className="px-4 sm:px-8 py-3 sm:py-4 bg-cyan-600 hover:bg-cyan-500 active:bg-cyan-700 text-white text-sm sm:text-lg font-bold rounded-lg transition-all transform active:scale-95 touch-manipulation"
             >
               RIGHT →
             </button>
