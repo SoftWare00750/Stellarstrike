@@ -51,7 +51,11 @@ const StellarStrike = () => {
         enemyBoss: './assets/sprites/enemy-boss-ship.png',
         playerAlt: './assets/sprites/player-ship-red.png',
         enemyAlt1: './assets/sprites/enemy-purple-boss.png',
-        enemyAlt2: './assets/sprites/enemy-ship-detail.png'
+        enemyAlt2: './assets/sprites/enemy-ship-detail.png',
+        spreadShot: '/assets/sprites/spreadshot.png',
+        rapidFire: '/assets/sprites/rapidfire.png',
+        shield: '/assets/sprites/shield.png',
+        life: '/assets/sprites/life.png'
       };
 
       let loadedCount = 0;
