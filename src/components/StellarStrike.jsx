@@ -7,7 +7,6 @@ const StellarStrike = () => {
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
   const [level, setLevel] = useState(1);
-  const [canvasSize, setCanvasSize] = useState({ width: 800, height: 600 });
   const gameLoopRef = useRef(null);
   const gameDataRef = useRef({
     player: { x: 375, y: 500, width: 60, height: 60, speed: 5 },
@@ -21,29 +20,6 @@ const StellarStrike = () => {
 
   const imagesRef = useRef({});
   const [imagesLoaded, setImagesLoaded] = useState(false);
-
-  // Handle responsive canvas sizing
-  useEffect(() => {
-    const updateCanvasSize = () => {
-      const maxWidth = Math.min(window.innerWidth - 40, 800);
-      const maxHeight = Math.min(window.innerHeight - 200, 600);
-      const aspectRatio = 800 / 600;
-      
-      let width = maxWidth;
-      let height = width / aspectRatio;
-      
-      if (height > maxHeight) {
-        height = maxHeight;
-        width = height * aspectRatio;
-      }
-      
-      setCanvasSize({ width: Math.floor(width), height: Math.floor(height) });
-    };
-
-    updateCanvasSize();
-    window.addEventListener('resize', updateCanvasSize);
-    return () => window.removeEventListener('resize', updateCanvasSize);
-  }, []);
 
   useEffect(() => {
     const loadImages = () => {
@@ -342,49 +318,23 @@ const StellarStrike = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen w-full bg-gradient-to-b from-slate-900 to-black p-2 sm:p-4 overflow-hidden">
-      <div ref={containerRef} className="relative w-full max-w-[800px] flex flex-col items-center">
+    <div className="flex flex-col items-center justify-center min-h-screen w-full bg-gradient-to-b from-slate-900 to-black p-2 sm:p-4">
+      <div ref={containerRef} className="relative w-full max-w-[800px]">
+        {/* Canvas - Always rendered but hidden when not playing */}
         <canvas
           ref={canvasRef}
           width={800}
           height={600}
-          className="border-2 sm:border-4 border-cyan-500 rounded-lg shadow-2xl w-full h-auto"
+          className="border-2 sm:border-4 border-cyan-500 rounded-lg shadow-2xl w-full"
           style={{ 
-            display: gameState === 'playing' ? 'block' : 'none',
-            maxWidth: '100%'
+            display: gameState === 'playing' || gameState === 'paused' ? 'block' : 'none',
+            aspectRatio: '4/3'
           }}
         />
 
-        {gameState === 'start' && (
-          <div 
-            className="w-full flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 via-purple-900 to-black border-2 sm:border-4 border-cyan-500 rounded-lg shadow-2xl"
-            style={{ aspectRatio: '4/3', maxHeight: '90vh' }}
-          >
-            <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 mb-4 sm:mb-8 tracking-wider animate-pulse px-4 text-center">
-              STELLAR STRIKE
-            </h1>
-            <p className="text-cyan-300 text-base sm:text-xl mb-4 sm:mb-8">Defend the Galaxy</p>
-            <button
-              onClick={startGame}
-              className="px-6 sm:px-10 py-3 sm:py-4 bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white text-lg sm:text-2xl font-bold rounded-lg transition-all shadow-lg hover:shadow-cyan-500/50 transform hover:scale-105"
-            >
-              START GAME
-            </button>
-            <div className="mt-6 sm:mt-8 text-cyan-300 text-center space-y-2 px-4">
-              <p className="text-sm sm:text-lg">⌨️ Arrow Keys - Move | Spacebar - Shoot</p>
-              <p className="text-xs sm:text-sm">ESC - Pause Game</p>
-            </div>
-            {!imagesLoaded && (
-              <p className="mt-4 text-yellow-400 text-xs sm:text-sm">Loading assets...</p>
-            )}
-          </div>
-        )}
-
+        {/* Pause Overlay - Positioned over canvas */}
         {gameState === 'paused' && (
-          <div 
-            className="absolute inset-0 flex flex-col items-center justify-center bg-black/90 rounded-lg backdrop-blur-sm z-10"
-            style={{ width: '100%', height: '100%' }}
-          >
+          <div className="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center bg-black/90 rounded-lg backdrop-blur-sm z-10">
             <h2 className="text-4xl sm:text-6xl font-bold text-cyan-400 mb-8 sm:mb-12">⏸ PAUSED</h2>
             <div className="space-y-3 sm:space-y-4 w-full max-w-xs px-4">
               <button
@@ -409,10 +359,37 @@ const StellarStrike = () => {
           </div>
         )}
 
+        {/* Start Screen */}
+        {gameState === 'start' && (
+          <div 
+            className="w-full flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 via-purple-900 to-black border-2 sm:border-4 border-cyan-500 rounded-lg shadow-2xl p-8"
+            style={{ aspectRatio: '4/3', minHeight: '400px' }}
+          >
+            <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 mb-4 sm:mb-8 tracking-wider animate-pulse px-4 text-center">
+              STELLAR STRIKE
+            </h1>
+            <p className="text-cyan-300 text-base sm:text-xl mb-4 sm:mb-8">Defend the Galaxy</p>
+            <button
+              onClick={startGame}
+              className="px-6 sm:px-10 py-3 sm:py-4 bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white text-lg sm:text-2xl font-bold rounded-lg transition-all shadow-lg hover:shadow-cyan-500/50 transform hover:scale-105"
+            >
+              START GAME
+            </button>
+            <div className="mt-6 sm:mt-8 text-cyan-300 text-center space-y-2 px-4">
+              <p className="text-sm sm:text-lg">⌨️ Arrow Keys - Move | Spacebar - Shoot</p>
+              <p className="text-xs sm:text-sm">ESC - Pause Game</p>
+            </div>
+            {!imagesLoaded && (
+              <p className="mt-4 text-yellow-400 text-xs sm:text-sm">Loading assets...</p>
+            )}
+          </div>
+        )}
+
+        {/* Game Over Screen */}
         {gameState === 'gameOver' && (
           <div 
-            className="w-full flex flex-col items-center justify-center bg-gradient-to-b from-red-900 via-black to-black border-2 sm:border-4 border-red-500 rounded-lg shadow-2xl p-4"
-            style={{ aspectRatio: '4/3', maxHeight: '90vh' }}
+            className="w-full flex flex-col items-center justify-center bg-gradient-to-b from-red-900 via-black to-black border-2 sm:border-4 border-red-500 rounded-lg shadow-2xl p-8"
+            style={{ aspectRatio: '4/3', minHeight: '400px' }}
           >
             <h2 className="text-4xl sm:text-7xl font-bold text-red-500 mb-4 sm:mb-6 animate-pulse">GAME OVER</h2>
             <div className="bg-black/50 p-4 sm:p-8 rounded-lg mb-6 sm:mb-8 border border-red-500/50">
@@ -438,7 +415,8 @@ const StellarStrike = () => {
         )}
       </div>
 
-      {gameState === 'playing' && (
+      {/* HUD and Controls - Only show when playing */}
+      {(gameState === 'playing' || gameState === 'paused') && (
         <>
           <div className="mt-4 sm:mt-6 flex flex-wrap justify-center gap-3 sm:gap-12 text-cyan-400 text-base sm:text-2xl font-bold w-full max-w-[800px] px-2">
             <div className="bg-black/50 px-3 sm:px-6 py-2 sm:py-3 rounded-lg border border-cyan-500/50">
@@ -452,29 +430,31 @@ const StellarStrike = () => {
             </div>
           </div>
 
-          <div className="mt-4 sm:mt-6 flex gap-2 sm:gap-4 w-full max-w-[800px] px-2 justify-center">
-            <button
-              onMouseDown={() => handleMobileControl('left')}
-              onTouchStart={(e) => { e.preventDefault(); handleMobileControl('left'); }}
-              className="px-4 sm:px-8 py-3 sm:py-4 bg-cyan-600 hover:bg-cyan-500 active:bg-cyan-700 text-white text-sm sm:text-lg font-bold rounded-lg transition-all transform active:scale-95 touch-manipulation"
-            >
-              ← LEFT
-            </button>
-            <button
-              onMouseDown={() => handleMobileControl('fire')}
-              onTouchStart={(e) => { e.preventDefault(); handleMobileControl('fire'); }}
-              className="px-4 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 active:from-red-700 active:to-orange-700 text-white text-sm sm:text-lg font-bold rounded-lg transition-all transform active:scale-95 touch-manipulation"
-            >
-              🔥 FIRE
-            </button>
-            <button
-              onMouseDown={() => handleMobileControl('right')}
-              onTouchStart={(e) => { e.preventDefault(); handleMobileControl('right'); }}
-              className="px-4 sm:px-8 py-3 sm:py-4 bg-cyan-600 hover:bg-cyan-500 active:bg-cyan-700 text-white text-sm sm:text-lg font-bold rounded-lg transition-all transform active:scale-95 touch-manipulation"
-            >
-              RIGHT →
-            </button>
-          </div>
+          {gameState === 'playing' && (
+            <div className="mt-4 sm:mt-6 flex gap-2 sm:gap-4 w-full max-w-[800px] px-2 justify-center">
+              <button
+                onMouseDown={() => handleMobileControl('left')}
+                onTouchStart={(e) => { e.preventDefault(); handleMobileControl('left'); }}
+                className="px-4 sm:px-8 py-3 sm:py-4 bg-cyan-600 hover:bg-cyan-500 active:bg-cyan-700 text-white text-sm sm:text-lg font-bold rounded-lg transition-all transform active:scale-95 touch-manipulation"
+              >
+                ← LEFT
+              </button>
+              <button
+                onMouseDown={() => handleMobileControl('fire')}
+                onTouchStart={(e) => { e.preventDefault(); handleMobileControl('fire'); }}
+                className="px-4 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 active:from-red-700 active:to-orange-700 text-white text-sm sm:text-lg font-bold rounded-lg transition-all transform active:scale-95 touch-manipulation"
+              >
+                🔥 FIRE
+              </button>
+              <button
+                onMouseDown={() => handleMobileControl('right')}
+                onTouchStart={(e) => { e.preventDefault(); handleMobileControl('right'); }}
+                className="px-4 sm:px-8 py-3 sm:py-4 bg-cyan-600 hover:bg-cyan-500 active:bg-cyan-700 text-white text-sm sm:text-lg font-bold rounded-lg transition-all transform active:scale-95 touch-manipulation"
+              >
+                RIGHT →
+              </button>
+            </div>
+          )}
         </>
       )}
     </div>
