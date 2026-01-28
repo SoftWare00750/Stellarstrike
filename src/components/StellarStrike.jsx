@@ -658,7 +658,7 @@ const StellarStrike = () => {
 
         {/* HUD - Only show during gameplay */}
         {(gameState === 'playing' || gameState === 'paused' || gameState === 'levelTransition') && (
-          <div className="bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 border border-cyan-500/50 rounded-lg p-2 md:p-3 mb-2 md:mb-3">
+          <div className="bg-gradient-to-r from-slate-700 via-purple-700 to-slate-700 border border-cyan-400/40 rounded-lg p-2 md:p-3 mb-2 md:mb-3">
             <div className="grid grid-cols-4 gap-1 sm:gap-2 text-xs sm:text-sm">
               <div className="bg-black/50 px-2 py-1 rounded border border-cyan-500/50">
                 <div className="text-cyan-400 text-[10px] sm:text-xs">SCORE</div>
@@ -699,7 +699,7 @@ const StellarStrike = () => {
           <canvas
             ref={canvasRef}
             width={1024}
-            height={768}
+            height={700}
             className="border-2 border-cyan-500 rounded-lg shadow-2xl w-full h-auto"
             style={{ 
               display: gameState === 'playing' || gameState === 'paused' || gameState === 'levelTransition' ? 'block' : 'none',
@@ -838,7 +838,7 @@ const StellarStrike = () => {
               onTouchStart={(e) => { e.preventDefault(); handleMobileControl('right'); }} 
               className="px-3 sm:px-4 py-2 sm:py-3 bg-cyan-600 hover:bg-cyan-500 active:bg-cyan-700 text-white text-xs sm:text-sm font-bold rounded-lg touch-manipulation"
             >
-              RIGHT →
+              RIGHT →f
             </button>
           </div>
         )}
