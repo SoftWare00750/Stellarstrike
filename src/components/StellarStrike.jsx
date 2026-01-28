@@ -698,13 +698,13 @@ const StellarStrike = () => {
         <div ref={containerRef} className="relative flex-1 flex items-center justify-center min-h-[400px] md:min-h-[500px]">
           <canvas
             ref={canvasRef}
-            width={800}
-            height={600}
+            width={1024}
+            height={768}
             className="border-2 border-cyan-500 rounded-lg shadow-2xl w-full h-auto"
             style={{ 
               display: gameState === 'playing' || gameState === 'paused' || gameState === 'levelTransition' ? 'block' : 'none',
-              maxWidth: '800px',
-              maxHeight: '600px'
+              maxWidth: '1024px',
+              maxHeight: '768px'
             }}
           />
 
