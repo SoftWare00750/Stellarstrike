@@ -35,13 +35,13 @@ const StellarStrike = () => {
   const imagesRef = useRef({});
   const [imagesLoaded, setImagesLoaded] = useState(false);
 
-  // Level configuration
+  // Level configuration - Increased enemy density
   const levelConfig = {
-    1: { enemiesRequired: 15, spawnRate: 1800, bossLevel: false, name: "Asteroid Belt", difficulty: 1 },
-    2: { enemiesRequired: 25, spawnRate: 1400, bossLevel: false, name: "Enemy Scouts", difficulty: 1.3 },
-    3: { enemiesRequired: 35, spawnRate: 1100, bossLevel: false, name: "Fighter Squadron", difficulty: 1.6 },
-    4: { enemiesRequired: 45, spawnRate: 900, bossLevel: false, name: "Heavy Assault", difficulty: 1.9 },
-    5: { enemiesRequired: 55, spawnRate: 700, bossLevel: false, name: "Elite Forces", difficulty: 2.2 },
+    1: { enemiesRequired: 25, spawnRate: 1200, bossLevel: false, name: "Asteroid Belt", difficulty: 1 },
+    2: { enemiesRequired: 40, spawnRate: 900, bossLevel: false, name: "Enemy Scouts", difficulty: 1.3 },
+    3: { enemiesRequired: 55, spawnRate: 700, bossLevel: false, name: "Fighter Squadron", difficulty: 1.6 },
+    4: { enemiesRequired: 70, spawnRate: 550, bossLevel: false, name: "Heavy Assault", difficulty: 1.9 },
+    5: { enemiesRequired: 85, spawnRate: 400, bossLevel: false, name: "Elite Forces", difficulty: 2.2 },
     6: { enemiesRequired: 1, spawnRate: 5000, bossLevel: true, name: "FINAL BOSS", difficulty: 3 }
   };
 
@@ -285,6 +285,10 @@ const StellarStrike = () => {
       canShoot = false;
     }
     
+    // Assign random movement pattern
+    const patterns = ['straight', 'zigzag', 'sine', 'diagonal'];
+    const movePattern = patterns[Math.floor(Math.random() * patterns.length)];
+    
     game.enemies.push({
       x: Math.random() * (1024 - size),
       y: -size,
@@ -298,7 +302,13 @@ const StellarStrike = () => {
       isBoss: false,
       canShoot,
       shootTimer: 0,
-      shootInterval: 2000 + Math.random() * 2000
+      shootInterval: 2000 + Math.random() * 2000,
+      movePattern: movePattern,
+      moveTimer: 0,
+      amplitude: 50 + Math.random() * 100, // For sine and zigzag patterns
+      frequency: 0.02 + Math.random() * 0.03,
+      initialX: Math.random() * (1024 - size), // Store initial X for sine pattern
+      zigzagDirection: Math.random() > 0.5 ? 1 : -1 // Direction for zigzag
     });
   };
 
@@ -423,7 +433,47 @@ const StellarStrike = () => {
       if (e.isBoss) {
         updateBoss(e, game);
       } else {
-        e.y += e.speed;
+        // Apply movement pattern
+        e.moveTimer += 16;
+        
+        switch(e.movePattern) {
+          case 'straight':
+            // Simple straight down movement
+            e.y += e.speed;
+            break;
+            
+          case 'zigzag':
+            // Zigzag pattern - move down and alternate left/right
+            e.y += e.speed;
+            if (e.moveTimer % 500 < 250) {
+              e.x += e.speed * e.zigzagDirection;
+            } else {
+              e.x -= e.speed * e.zigzagDirection;
+            }
+            // Keep in bounds
+            if (e.x < 0 || e.x > 1024 - e.width) {
+              e.zigzagDirection *= -1;
+            }
+            break;
+            
+          case 'sine':
+            // Sine wave pattern
+            e.y += e.speed;
+            e.x = e.initialX + Math.sin(e.y * e.frequency) * e.amplitude;
+            // Keep in bounds
+            e.x = Math.max(0, Math.min(1024 - e.width, e.x));
+            break;
+            
+          case 'diagonal':
+            // Diagonal movement with bounce
+            e.y += e.speed;
+            e.x += e.speed * (e.zigzagDirection || 1);
+            // Bounce off walls
+            if (e.x < 0 || e.x > 1024 - e.width) {
+              e.zigzagDirection = (e.zigzagDirection || 1) * -1;
+            }
+            break;
+        }
         
         if (e.canShoot && e.y > 0 && e.y < 300) {
           e.shootTimer += 16;
@@ -772,12 +822,12 @@ const StellarStrike = () => {
           {/* Main Menu Screen */}
           {gameState === 'mainMenu' && (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 via-purple-900 to-black border-2 border-cyan-500 rounded-lg shadow-2xl p-4 overflow-y-auto">
-              <div className="text-center mb-6">
+              <div className="text-center mb-6 max-w-2xl">
                 <p className="text-cyan-300 text-sm md:text-base mb-1">Defend the Galaxy</p>
                 <p className="text-purple-300 text-xs md:text-sm mb-4">6 Levels • Epic Boss Battle</p>
               </div>
               
-              <div className="space-y-3 w-full max-w-xs">
+              <div className="space-y-3 w-full max-w-md">
                 <button 
                   onClick={goToShipSelection} 
                   className="block w-full px-6 py-4 bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white text-lg md:text-xl font-bold rounded-lg transition-all hover:scale-105 shadow-lg"
@@ -786,7 +836,7 @@ const StellarStrike = () => {
                 </button>
               </div>
               
-              <div className="text-cyan-300 text-center space-y-1 text-[10px] sm:text-xs md:text-sm mt-8">
+              <div className="text-cyan-300 text-center space-y-1 text-[10px] sm:text-xs md:text-sm mt-8 max-w-2xl">
                 <p>⌨️ Arrow Keys - Move | Spacebar - Shoot</p>
                 <p>📱 Touch & Drag Ship - Move | Fire Button - Shoot</p>
                 <p>ESC - Pause | Collect power-ups!</p>
@@ -798,23 +848,25 @@ const StellarStrike = () => {
           {gameState === 'shipSelection' && (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 via-purple-900 to-black border-2 border-cyan-500 rounded-lg shadow-2xl p-4 overflow-y-auto">
               <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-yellow-400 mb-4">Choose Your Ship</h2>
-              <div className="flex gap-3 md:gap-4 mb-6">
-                <button onClick={() => startGame('blue')} className="flex flex-col items-center p-3 md:p-4 bg-cyan-900/50 border-2 border-cyan-500 rounded-lg hover:bg-cyan-800/50 hover:scale-105 transition-all">
-                  <div className="w-16 h-16 md:w-20 md:h-20 bg-cyan-500/20 rounded-lg flex items-center justify-center mb-2">
-                    <span className="text-3xl md:text-4xl">🚀</span>
+              <div className="flex gap-4 md:gap-6 mb-6">
+                <button onClick={() => startGame('blue')} className="flex flex-col items-center p-4 md:p-6 bg-cyan-900/50 border-2 border-cyan-500 rounded-lg hover:bg-cyan-800/50 hover:scale-105 transition-all">
+                  <div className="w-20 h-20 md:w-24 md:h-24 bg-cyan-500/20 rounded-lg flex items-center justify-center mb-2">
+                    <span className="text-4xl md:text-5xl">🚀</span>
                   </div>
-                  <span className="text-cyan-400 font-bold text-xs md:text-sm">BLUE STRIKER</span>
+                  <span className="text-cyan-400 font-bold text-sm md:text-base">BLUE STRIKER</span>
+                  <span className="text-cyan-300 text-xs mt-1">Balanced Power</span>
                 </button>
-                <button onClick={() => startGame('red')} className="flex flex-col items-center p-3 md:p-4 bg-red-900/50 border-2 border-red-500 rounded-lg hover:bg-red-800/50 hover:scale-105 transition-all">
-                  <div className="w-16 h-16 md:w-20 md:h-20 bg-red-500/20 rounded-lg flex items-center justify-center mb-2">
-                    <span className="text-3xl md:text-4xl">🔴</span>
+                <button onClick={() => startGame('red')} className="flex flex-col items-center p-4 md:p-6 bg-red-900/50 border-2 border-red-500 rounded-lg hover:bg-red-800/50 hover:scale-105 transition-all">
+                  <div className="w-20 h-20 md:w-24 md:h-24 bg-red-500/20 rounded-lg flex items-center justify-center mb-2">
+                    <span className="text-4xl md:text-5xl">🔴</span>
                   </div>
-                  <span className="text-red-400 font-bold text-xs md:text-sm">RED PHOENIX</span>
+                  <span className="text-red-400 font-bold text-sm md:text-base">RED PHOENIX</span>
+                  <span className="text-red-300 text-xs mt-1">High Speed</span>
                 </button>
               </div>
               <button 
                 onClick={returnToMainMenu} 
-                className="px-4 py-2 bg-slate-600 hover:bg-slate-500 text-white text-sm md:text-base font-bold rounded-lg transition-all"
+                className="px-6 py-2 bg-slate-600 hover:bg-slate-500 text-white text-sm md:text-base font-bold rounded-lg transition-all"
               >
                 ← BACK
               </button>
