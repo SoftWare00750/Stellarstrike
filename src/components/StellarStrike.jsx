@@ -221,7 +221,7 @@ const StellarStrike = () => {
   };
 
   const spawnPowerUp = (game, x, y) => {
-    const types = ['spreadshot', 'rapidfire', 'shield', 'life'];
+    const types = ['spreadshot', 'rapidfire', 'life'];
     const type = types[Math.floor(Math.random() * types.length)];
     
     game.powerUps.push({
@@ -362,11 +362,10 @@ const StellarStrike = () => {
   };
 
   const update = (game) => {
-    const currentSpeed = game.shield ? game.maxSpeed * 0.7 : game.player.speed;
-    if (game.keys['ArrowLeft']) game.player.x -= currentSpeed;
-    if (game.keys['ArrowRight']) game.player.x += currentSpeed;
-    if (game.keys['ArrowUp']) game.player.y -= currentSpeed;
-    if (game.keys['ArrowDown']) game.player.y += currentSpeed;
+    if (game.keys['ArrowLeft']) game.player.x -= game.player.speed;
+    if (game.keys['ArrowRight']) game.player.x += game.player.speed;
+    if (game.keys['ArrowUp']) game.player.y -= game.player.speed;
+    if (game.keys['ArrowDown']) game.player.y += game.player.speed;
 
     game.player.x = Math.max(0, Math.min(1024 - game.player.width, game.player.x));
     game.player.y = Math.max(0, Math.min(768 - game.player.height, game.player.y));
@@ -409,14 +408,6 @@ const StellarStrike = () => {
           case 'rapidfire':
             game.rapidFire = true;
             setTimeout(() => game.rapidFire = false, 8000);
-            break;
-          case 'shield':
-            game.shield = true;
-            game.shieldDuration = 12000;
-            setTimeout(() => {
-              game.shield = false;
-              game.shieldDuration = 0;
-            }, 12000);
             break;
           case 'life':
             setLives(l => Math.min(l + 1, 5));
@@ -472,20 +463,13 @@ const StellarStrike = () => {
       }
 
       if (checkCollision(game.player, e)) {
-        if (game.shield) {
-          game.shield = false;
-          game.shieldDuration = 0;
-          createExplosion(game, e.x + e.width / 2, e.y + e.height / 2, 30);
-          return false;
-        } else {
-          createExplosion(game, e.x + e.width / 2, e.y + e.height / 2, 30);
-          setLives(l => {
-            const newLives = l - 1;
-            if (newLives <= 0) setGameState('gameOver');
-            return newLives;
-          });
-          return false;
-        }
+        createExplosion(game, e.x + e.width / 2, e.y + e.height / 2, 30);
+        setLives(l => {
+          const newLives = l - 1;
+          if (newLives <= 0) setGameState('gameOver');
+          return newLives;
+        });
+        return false;
       }
 
       return e.y < 800 && e.y > -e.height;
@@ -494,16 +478,11 @@ const StellarStrike = () => {
     for (let i = game.enemyBullets.length - 1; i >= 0; i--) {
       if (checkCollision(game.player, game.enemyBullets[i])) {
         game.enemyBullets.splice(i, 1);
-        if (game.shield) {
-          game.shield = false;
-          game.shieldDuration = 0;
-        } else {
-          setLives(l => {
-            const newLives = l - 1;
-            if (newLives <= 0) setGameState('gameOver');
-            return newLives;
-          });
-        }
+        setLives(l => {
+          const newLives = l - 1;
+          if (newLives <= 0) setGameState('gameOver');
+          return newLives;
+        });
       }
     }
 
@@ -516,11 +495,16 @@ const StellarStrike = () => {
   };
 
   const render = (ctx, game) => {
+    // Reset all context properties at the start
+    ctx.globalAlpha = 1;
+    ctx.shadowBlur = 0;
+    
     // Clear and draw background
     ctx.fillStyle = '#000814';
     ctx.fillRect(0, 0, 1024, 768);
 
     // Draw stars
+    ctx.save();
     ctx.fillStyle = '#fff';
     for (let i = 0; i < 130; i++) {
       const x = (i * 123) % 1024;
@@ -529,33 +513,35 @@ const StellarStrike = () => {
       ctx.globalAlpha = 0.3 + (i % 7) * 0.1;
       ctx.fillRect(x, y, size, size);
     }
-    ctx.globalAlpha = 1;
+    ctx.restore();
 
     // Draw bullets
+    ctx.save();
     ctx.fillStyle = '#00ff88';
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = '#00ff88';
     game.bullets.forEach(b => {
-      ctx.shadowBlur = 15;
-      ctx.shadowColor = '#00ff88';
       ctx.fillRect(b.x, b.y, b.width, b.height);
     });
-    ctx.shadowBlur = 0;
+    ctx.restore();
 
     // Draw enemy bullets
+    ctx.save();
     ctx.fillStyle = '#ff0055';
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = '#ff0055';
     game.enemyBullets.forEach(b => {
-      ctx.shadowBlur = 10;
-      ctx.shadowColor = '#ff0055';
       ctx.fillRect(b.x, b.y, b.width, b.height);
     });
-    ctx.shadowBlur = 0;
+    ctx.restore();
 
     // Draw power-ups
     game.powerUps.forEach(p => {
+      ctx.save();
       const img = imagesRef.current[p.type];
       if (img?.complete && img.naturalWidth > 0) {
         ctx.globalAlpha = 0.9 + Math.sin(Date.now() * 0.01) * 0.1;
         ctx.drawImage(img, p.x, p.y, p.width, p.height);
-        ctx.globalAlpha = 1;
       } else {
         const colors = {
           spreadshot: '#ff6b35',
@@ -566,12 +552,13 @@ const StellarStrike = () => {
         ctx.fillStyle = colors[p.type];
         ctx.globalAlpha = 0.7 + Math.sin(Date.now() * 0.01) * 0.3;
         ctx.fillRect(p.x, p.y, p.width, p.height);
-        ctx.globalAlpha = 1;
       }
+      ctx.restore();
     });
 
     // Draw enemies
     game.enemies.forEach(e => {
+      ctx.save();
       const img = imagesRef.current[e.type] || imagesRef.current.enemyBoss;
       if (e.isBoss) {
         ctx.shadowBlur = 30;
@@ -590,10 +577,11 @@ const StellarStrike = () => {
         ctx.fillStyle = colors[e.type] || '#ff0844';
         ctx.fillRect(e.x, e.y, e.width, e.height);
       }
-      ctx.shadowBlur = 0;
+      ctx.restore();
       
-      // Draw health bars
+      // Draw health bars (with fresh context)
       if (e.health < e.maxHealth || e.isBoss) {
+        ctx.save();
         const barWidth = e.width;
         const barHeight = e.isBoss ? 8 : 4;
         const healthPercent = e.health / e.maxHealth;
@@ -609,19 +597,22 @@ const StellarStrike = () => {
           ctx.textAlign = 'center';
           ctx.fillText(`${e.health}/${e.maxHealth}`, e.x + barWidth / 2, e.y - 20);
         }
+        ctx.restore();
       }
     });
 
     // Draw particles
     game.particles.forEach(p => {
+      ctx.save();
       ctx.fillStyle = p.color;
       ctx.globalAlpha = p.life / 40;
       ctx.fillRect(p.x, p.y, 4, 4);
+      ctx.restore();
     });
-    ctx.globalAlpha = 1;
 
-    // FIXED: Draw player ship FIRST, then shield effect on top
-    // This ensures the player ship is always visible
+    // Draw player ship - with completely isolated context
+    ctx.save();
+    ctx.globalAlpha = 1; // Ensure full opacity
     const playerImg = selectedShip === 'blue' ? imagesRef.current.playerBlue : imagesRef.current.playerRed;
     if (playerImg?.complete && playerImg.naturalWidth > 0) {
       ctx.drawImage(playerImg, game.player.x, game.player.y, game.player.width, game.player.height);
@@ -629,36 +620,69 @@ const StellarStrike = () => {
       ctx.fillStyle = selectedShip === 'blue' ? '#00d9ff' : '#ff0844';
       ctx.fillRect(game.player.x, game.player.y, game.player.width, game.player.height);
     }
-
-    // Draw shield effect AFTER player ship (on top)
-    if (game.shield) {
-      ctx.save(); // Save current context state
-      ctx.strokeStyle = '#00d9ff';
-      ctx.lineWidth = 3;
-      ctx.globalAlpha = 0.5 + Math.sin(Date.now() * 0.01) * 0.3;
-      ctx.beginPath();
-      ctx.arc(
-        game.player.x + game.player.width / 2,
-        game.player.y + game.player.height / 2,
-        game.player.width / 2 + 10,
-        0,
-        Math.PI * 2
-      );
-      ctx.stroke();
-      ctx.restore(); // Restore context state to prevent alpha bleed
-    }
+    ctx.restore();
   };
 
   const handleMobileControl = (action) => {
     const game = gameDataRef.current;
-    if (action === 'left') game.player.x -= 25;
-    if (action === 'right') game.player.x += 25;
     if (action === 'fire') shoot(game);
   };
 
+  // Touch control state for dragging
+  const touchStateRef = useRef({
+    isDragging: false,
+    touchId: null
+  });
+
+  const handleCanvasTouch = (e) => {
+    if (gameState !== 'playing') return;
+    
+    e.preventDefault();
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    
+    const touch = e.touches[0] || e.changedTouches[0];
+    const x = (touch.clientX - rect.left) * scaleX;
+    const y = (touch.clientY - rect.top) * scaleY;
+    
+    const game = gameDataRef.current;
+    
+    // Center the player ship on the touch point
+    game.player.x = x - game.player.width / 2;
+    game.player.y = y - game.player.height / 2;
+    
+    // Keep player in bounds
+    game.player.x = Math.max(0, Math.min(1024 - game.player.width, game.player.x));
+    game.player.y = Math.max(0, Math.min(768 - game.player.height, game.player.y));
+  };
+
+  const handleCanvasMouseMove = (e) => {
+    if (gameState !== 'playing' || !touchStateRef.current.isDragging) return;
+    
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top) * scaleY;
+    
+    const game = gameDataRef.current;
+    
+    // Center the player ship on the mouse point
+    game.player.x = x - game.player.width / 2;
+    game.player.y = y - game.player.height / 2;
+    
+    // Keep player in bounds
+    game.player.x = Math.max(0, Math.min(1024 - game.player.width, game.player.x));
+    game.player.y = Math.max(0, Math.min(768 - game.player.height, game.player.y));
+  };
+
   return (
-    <div className="flex flex-col items-center justify-center h-screen w-full bg-gradient-to-b from-slate-900 to-black overflow-hidden">
-      <div className="w-full h-full max-w-[1100px] flex flex-col p-1 sm:p-2">
+    <div className="flex flex-col items-center justify-center h-screen w-full bg-gradient-to-b from-slate-900 to-black overflow-hidden touch-none">
+      <div className="w-full h-full max-w-[1100px] flex flex-col p-1 sm:p-2 gap-1">{/* Added gap for better spacing */}
         {/* Title - Only show when NOT in active gameplay */}
         {(gameState === 'mainMenu' || gameState === 'shipSelection' || gameState === 'gameOver' || gameState === 'victory') && (
           <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 text-center tracking-wider mb-1 sm:mb-2">
@@ -694,28 +718,34 @@ const StellarStrike = () => {
             <div className="text-center mt-0.5">
               <div className="text-[9px] sm:text-[10px] font-bold text-cyan-300">{levelConfig[level]?.name}</div>
             </div>
-            {(gameDataRef.current.spreadShot || gameDataRef.current.rapidFire || gameDataRef.current.shield) && (
+            {(gameDataRef.current.spreadShot || gameDataRef.current.rapidFire) && (
               <div className="flex gap-0.5 justify-center mt-0.5 flex-wrap text-[8px] sm:text-[9px]">
                 {gameDataRef.current.spreadShot && <div className="bg-orange-600/80 px-1 py-0.5 rounded-full font-bold">⚡SPREAD</div>}
                 {gameDataRef.current.rapidFire && <div className="bg-yellow-600/80 px-1 py-0.5 rounded-full font-bold">🔥RAPID</div>}
-                {gameDataRef.current.shield && <div className="bg-cyan-600/80 px-1 py-0.5 rounded-full font-bold">🛡️SHIELD</div>}
               </div>
             )}
           </div>
         )}
 
-        {/* Game Canvas Container - Optimized for no scrolling */}
-        <div ref={containerRef} className="relative flex-1 flex items-center justify-center overflow-hidden">
+        {/* Game Canvas Container - Optimized for mobile */}
+        <div ref={containerRef} className="relative flex-1 flex items-center justify-center overflow-hidden min-h-0">
           <canvas
             ref={canvasRef}
             width={1024}
             height={768}
-            className="border-2 border-cyan-500 rounded shadow-2xl w-full h-full object-contain"
+            className="border-2 border-cyan-500 rounded shadow-2xl max-w-full max-h-full object-contain"
             style={{ 
-              display: gameState === 'playing' || gameState === 'paused' || gameState === 'levelTransition' ? 'block' : 'none',
-              maxWidth: '100%',
-              maxHeight: '100%'
+              display: gameState === 'playing' || gameState === 'paused' || gameState === 'levelTransition' ? 'block' : 'none'
             }}
+            onTouchStart={handleCanvasTouch}
+            onTouchMove={handleCanvasTouch}
+            onMouseDown={(e) => {
+              touchStateRef.current.isDragging = true;
+              handleCanvasMouseMove(e);
+            }}
+            onMouseMove={handleCanvasMouseMove}
+            onMouseUp={() => touchStateRef.current.isDragging = false}
+            onMouseLeave={() => touchStateRef.current.isDragging = false}
           />
 
           {/* Level Transition Overlay */}
@@ -758,6 +788,7 @@ const StellarStrike = () => {
               
               <div className="text-cyan-300 text-center space-y-1 text-[10px] sm:text-xs md:text-sm mt-8">
                 <p>⌨️ Arrow Keys - Move | Spacebar - Shoot</p>
+                <p>📱 Touch & Drag Ship - Move | Fire Button - Shoot</p>
                 <p>ESC - Pause | Collect power-ups!</p>
               </div>
             </div>
@@ -826,29 +857,20 @@ const StellarStrike = () => {
           )}
         </div>
 
-        {/* Mobile Controls - Only show during gameplay - FIXED TYPO */}
+        {/* Mobile Controls - Only show during gameplay */}
         {gameState === 'playing' && (
-          <div className="flex gap-2 justify-center mt-1 md:hidden">
+          <div className="flex justify-between items-center gap-2 mt-1 pb-2 md:hidden px-2">
+            {/* Instructions on the left */}
+            <p className="text-cyan-300 text-xs max-w-[180px] flex-1">Touch & drag spaceship to move</p>
+            
+            {/* Fire button on the right */}
             <button 
-              onMouseDown={() => handleMobileControl('left')} 
-              onTouchStart={(e) => { e.preventDefault(); handleMobileControl('left'); }} 
-              className="px-3 py-2 bg-cyan-600 hover:bg-cyan-500 active:bg-cyan-700 text-white text-xs font-bold rounded touch-manipulation"
+              onTouchStart={(e) => { e.preventDefault(); handleMobileControl('fire'); }}
+              onMouseDown={() => handleMobileControl('fire')}
+              className="w-20 h-20 bg-gradient-to-br from-red-600 to-orange-600 active:from-red-700 active:to-orange-700 text-white text-base font-bold rounded-full flex flex-col items-center justify-center shadow-lg touch-none select-none flex-shrink-0"
             >
-              ← LEFT
-            </button>
-            <button 
-              onMouseDown={() => handleMobileControl('fire')} 
-              onTouchStart={(e) => { e.preventDefault(); handleMobileControl('fire'); }} 
-              className="px-3 py-2 bg-gradient-to-r from-red-600 to-orange-600 text-white text-xs font-bold rounded touch-manipulation"
-            >
-              🔥 FIRE
-            </button>
-            <button 
-              onMouseDown={() => handleMobileControl('right')} 
-              onTouchStart={(e) => { e.preventDefault(); handleMobileControl('right'); }} 
-              className="px-3 py-2 bg-cyan-600 hover:bg-cyan-500 active:bg-cyan-700 text-white text-xs font-bold rounded touch-manipulation"
-            >
-              RIGHT →
+              <span className="text-2xl">🔥</span>
+              <span className="text-xs">FIRE</span>
             </button>
           </div>
         )}
