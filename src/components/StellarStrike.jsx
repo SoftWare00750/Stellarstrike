@@ -516,9 +516,11 @@ const StellarStrike = () => {
   };
 
   const render = (ctx, game) => {
+    // Clear and draw background
     ctx.fillStyle = '#000814';
     ctx.fillRect(0, 0, 1024, 768);
 
+    // Draw stars
     ctx.fillStyle = '#fff';
     for (let i = 0; i < 130; i++) {
       const x = (i * 123) % 1024;
@@ -529,32 +531,7 @@ const StellarStrike = () => {
     }
     ctx.globalAlpha = 1;
 
-    // Draw shield effect behind the player
-    if (game.shield) {
-      ctx.strokeStyle = '#00d9ff';
-      ctx.lineWidth = 3;
-      ctx.globalAlpha = 0.5 + Math.sin(Date.now() * 0.01) * 0.3;
-      ctx.beginPath();
-      ctx.arc(
-        game.player.x + game.player.width / 2,
-        game.player.y + game.player.height / 2,
-        game.player.width / 2 + 10,
-        0,
-        Math.PI * 2
-      );
-      ctx.stroke();
-      ctx.globalAlpha = 1;
-    }
-
-    // Draw player ship - this will render on top of the shield
-    const playerImg = selectedShip === 'blue' ? imagesRef.current.playerBlue : imagesRef.current.playerRed;
-    if (playerImg?.complete && playerImg.naturalWidth > 0) {
-      ctx.drawImage(playerImg, game.player.x, game.player.y, game.player.width, game.player.height);
-    } else {
-      ctx.fillStyle = selectedShip === 'blue' ? '#00d9ff' : '#ff0844';
-      ctx.fillRect(game.player.x, game.player.y, game.player.width, game.player.height);
-    }
-
+    // Draw bullets
     ctx.fillStyle = '#00ff88';
     game.bullets.forEach(b => {
       ctx.shadowBlur = 15;
@@ -563,6 +540,7 @@ const StellarStrike = () => {
     });
     ctx.shadowBlur = 0;
 
+    // Draw enemy bullets
     ctx.fillStyle = '#ff0055';
     game.enemyBullets.forEach(b => {
       ctx.shadowBlur = 10;
@@ -571,6 +549,7 @@ const StellarStrike = () => {
     });
     ctx.shadowBlur = 0;
 
+    // Draw power-ups
     game.powerUps.forEach(p => {
       const img = imagesRef.current[p.type];
       if (img?.complete && img.naturalWidth > 0) {
@@ -591,6 +570,7 @@ const StellarStrike = () => {
       }
     });
 
+    // Draw enemies
     game.enemies.forEach(e => {
       const img = imagesRef.current[e.type] || imagesRef.current.enemyBoss;
       if (e.isBoss) {
@@ -612,6 +592,7 @@ const StellarStrike = () => {
       }
       ctx.shadowBlur = 0;
       
+      // Draw health bars
       if (e.health < e.maxHealth || e.isBoss) {
         const barWidth = e.width;
         const barHeight = e.isBoss ? 8 : 4;
@@ -631,12 +612,41 @@ const StellarStrike = () => {
       }
     });
 
+    // Draw particles
     game.particles.forEach(p => {
       ctx.fillStyle = p.color;
       ctx.globalAlpha = p.life / 40;
       ctx.fillRect(p.x, p.y, 4, 4);
     });
     ctx.globalAlpha = 1;
+
+    // FIXED: Draw player ship FIRST, then shield effect on top
+    // This ensures the player ship is always visible
+    const playerImg = selectedShip === 'blue' ? imagesRef.current.playerBlue : imagesRef.current.playerRed;
+    if (playerImg?.complete && playerImg.naturalWidth > 0) {
+      ctx.drawImage(playerImg, game.player.x, game.player.y, game.player.width, game.player.height);
+    } else {
+      ctx.fillStyle = selectedShip === 'blue' ? '#00d9ff' : '#ff0844';
+      ctx.fillRect(game.player.x, game.player.y, game.player.width, game.player.height);
+    }
+
+    // Draw shield effect AFTER player ship (on top)
+    if (game.shield) {
+      ctx.save(); // Save current context state
+      ctx.strokeStyle = '#00d9ff';
+      ctx.lineWidth = 3;
+      ctx.globalAlpha = 0.5 + Math.sin(Date.now() * 0.01) * 0.3;
+      ctx.beginPath();
+      ctx.arc(
+        game.player.x + game.player.width / 2,
+        game.player.y + game.player.height / 2,
+        game.player.width / 2 + 10,
+        0,
+        Math.PI * 2
+      );
+      ctx.stroke();
+      ctx.restore(); // Restore context state to prevent alpha bleed
+    }
   };
 
   const handleMobileControl = (action) => {
@@ -647,64 +657,64 @@ const StellarStrike = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen w-full bg-gradient-to-b from-slate-900 to-black overflow-hidden">
-      <div className="w-full max-w-[1100px] min-h-screen flex flex-col p-2 sm:p-4 md:p-6">
+    <div className="flex flex-col items-center justify-center h-screen w-full bg-gradient-to-b from-slate-900 to-black overflow-hidden">
+      <div className="w-full h-full max-w-[1100px] flex flex-col p-1 sm:p-2">
         {/* Title - Only show when NOT in active gameplay */}
         {(gameState === 'mainMenu' || gameState === 'shipSelection' || gameState === 'gameOver' || gameState === 'victory') && (
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 text-center tracking-wider mb-2 md:mb-4">
+          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 text-center tracking-wider mb-1 sm:mb-2">
             STELLAR STRIKE
           </h1>
         )}
 
-        {/* HUD - Only show during gameplay */}
+        {/* OPTIMIZED HUD - Compact design */}
         {(gameState === 'playing' || gameState === 'paused' || gameState === 'levelTransition') && (
-          <div className="bg-gradient-to-r from-slate-700 via-purple-700 to-slate-700 border border-cyan-400/40 rounded-lg p-2 md:p-3 mb-2 md:mb-3">
-            <div className="grid grid-cols-4 gap-1 sm:gap-2 text-xs sm:text-sm">
-              <div className="bg-black/50 px-2 py-1 rounded border border-cyan-500/50">
-                <div className="text-cyan-400 text-[10px] sm:text-xs">SCORE</div>
-                <div className="text-sm sm:text-base md:text-lg font-bold text-white">{score}</div>
+          <div className="bg-gradient-to-r from-slate-700 via-purple-700 to-slate-700 border border-cyan-400/40 rounded p-1 sm:p-1.5 mb-1">
+            <div className="grid grid-cols-4 gap-1 text-[10px] sm:text-xs">
+              <div className="bg-black/50 px-1.5 py-0.5 rounded border border-cyan-500/50">
+                <div className="text-cyan-400 text-[8px] sm:text-[9px]">SCORE</div>
+                <div className="text-xs sm:text-sm font-bold text-white leading-tight">{score}</div>
               </div>
-              <div className="bg-black/50 px-2 py-1 rounded border border-red-500/50">
-                <div className="text-red-400 text-[10px] sm:text-xs">LIVES</div>
-                <div className="flex gap-0.5 sm:gap-1 flex-wrap">
+              <div className="bg-black/50 px-1.5 py-0.5 rounded border border-red-500/50">
+                <div className="text-red-400 text-[8px] sm:text-[9px]">LIVES</div>
+                <div className="flex gap-0.5">
                   {[...Array(lives)].map((_, i) => (
-                    <span key={i} className="text-xs sm:text-sm">❤️</span>
+                    <span key={i} className="text-[10px] sm:text-xs leading-none">❤️</span>
                   ))}
                 </div>
               </div>
-              <div className="bg-black/50 px-2 py-1 rounded border border-purple-500/50">
-                <div className="text-purple-400 text-[10px] sm:text-xs">LEVEL</div>
-                <div className="text-sm sm:text-base md:text-lg font-bold text-white">{level}/6</div>
+              <div className="bg-black/50 px-1.5 py-0.5 rounded border border-purple-500/50">
+                <div className="text-purple-400 text-[8px] sm:text-[9px]">LVL</div>
+                <div className="text-xs sm:text-sm font-bold text-white leading-tight">{level}/6</div>
               </div>
-              <div className="bg-black/50 px-2 py-1 rounded border border-yellow-500/50">
-                <div className="text-yellow-400 text-[10px] sm:text-xs">PROGRESS</div>
-                <div className="text-sm sm:text-base md:text-lg font-bold text-white">{enemiesKilled}/{levelConfig[level]?.enemiesRequired}</div>
+              <div className="bg-black/50 px-1.5 py-0.5 rounded border border-yellow-500/50">
+                <div className="text-yellow-400 text-[8px] sm:text-[9px]">KILL</div>
+                <div className="text-xs sm:text-sm font-bold text-white leading-tight">{enemiesKilled}/{levelConfig[level]?.enemiesRequired}</div>
               </div>
             </div>
-            <div className="text-center mt-1">
-              <div className="text-xs sm:text-sm md:text-base font-bold text-cyan-300">{levelConfig[level]?.name}</div>
+            <div className="text-center mt-0.5">
+              <div className="text-[9px] sm:text-[10px] font-bold text-cyan-300">{levelConfig[level]?.name}</div>
             </div>
             {(gameDataRef.current.spreadShot || gameDataRef.current.rapidFire || gameDataRef.current.shield) && (
-              <div className="flex gap-1 justify-center mt-1 flex-wrap text-[10px] sm:text-xs">
-                {gameDataRef.current.spreadShot && <div className="bg-orange-600/80 px-2 py-0.5 rounded-full font-bold">⚡ SPREAD</div>}
-                {gameDataRef.current.rapidFire && <div className="bg-yellow-600/80 px-2 py-0.5 rounded-full font-bold">🔥 RAPID</div>}
-                {gameDataRef.current.shield && <div className="bg-cyan-600/80 px-2 py-0.5 rounded-full font-bold">🛡️ SHIELD</div>}
+              <div className="flex gap-0.5 justify-center mt-0.5 flex-wrap text-[8px] sm:text-[9px]">
+                {gameDataRef.current.spreadShot && <div className="bg-orange-600/80 px-1 py-0.5 rounded-full font-bold">⚡SPREAD</div>}
+                {gameDataRef.current.rapidFire && <div className="bg-yellow-600/80 px-1 py-0.5 rounded-full font-bold">🔥RAPID</div>}
+                {gameDataRef.current.shield && <div className="bg-cyan-600/80 px-1 py-0.5 rounded-full font-bold">🛡️SHIELD</div>}
               </div>
             )}
           </div>
         )}
 
-        {/* Game Canvas Container - Responsive sizing */}
-        <div ref={containerRef} className="relative flex-1 flex items-center justify-center min-h-[400px] md:min-h-[500px]">
+        {/* Game Canvas Container - Optimized for no scrolling */}
+        <div ref={containerRef} className="relative flex-1 flex items-center justify-center overflow-hidden">
           <canvas
             ref={canvasRef}
             width={1024}
-            height={700}
-            className="border-2 border-cyan-500 rounded-lg shadow-2xl w-full h-auto"
+            height={768}
+            className="border-2 border-cyan-500 rounded shadow-2xl w-full h-full object-contain"
             style={{ 
               display: gameState === 'playing' || gameState === 'paused' || gameState === 'levelTransition' ? 'block' : 'none',
-              maxWidth: '1024px',
-              maxHeight: '768px'
+              maxWidth: '100%',
+              maxHeight: '100%'
             }}
           />
 
@@ -816,29 +826,29 @@ const StellarStrike = () => {
           )}
         </div>
 
-        {/* Mobile Controls - Only show during gameplay */}
+        {/* Mobile Controls - Only show during gameplay - FIXED TYPO */}
         {gameState === 'playing' && (
-          <div className="flex gap-2 justify-center mt-2 pb-safe md:hidden">
+          <div className="flex gap-2 justify-center mt-1 md:hidden">
             <button 
               onMouseDown={() => handleMobileControl('left')} 
               onTouchStart={(e) => { e.preventDefault(); handleMobileControl('left'); }} 
-              className="px-3 sm:px-4 py-2 sm:py-3 bg-cyan-600 hover:bg-cyan-500 active:bg-cyan-700 text-white text-xs sm:text-sm font-bold rounded-lg touch-manipulation"
+              className="px-3 py-2 bg-cyan-600 hover:bg-cyan-500 active:bg-cyan-700 text-white text-xs font-bold rounded touch-manipulation"
             >
               ← LEFT
             </button>
             <button 
               onMouseDown={() => handleMobileControl('fire')} 
               onTouchStart={(e) => { e.preventDefault(); handleMobileControl('fire'); }} 
-              className="px-3 sm:px-4 py-2 sm:py-3 bg-gradient-to-r from-red-600 to-orange-600 text-white text-xs sm:text-sm font-bold rounded-lg touch-manipulation"
+              className="px-3 py-2 bg-gradient-to-r from-red-600 to-orange-600 text-white text-xs font-bold rounded touch-manipulation"
             >
               🔥 FIRE
             </button>
             <button 
               onMouseDown={() => handleMobileControl('right')} 
               onTouchStart={(e) => { e.preventDefault(); handleMobileControl('right'); }} 
-              className="px-3 sm:px-4 py-2 sm:py-3 bg-cyan-600 hover:bg-cyan-500 active:bg-cyan-700 text-white text-xs sm:text-sm font-bold rounded-lg touch-manipulation"
+              className="px-3 py-2 bg-cyan-600 hover:bg-cyan-500 active:bg-cyan-700 text-white text-xs font-bold rounded touch-manipulation"
             >
-              RIGHT →f
+              RIGHT →
             </button>
           </div>
         )}
