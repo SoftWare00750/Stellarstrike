@@ -12,7 +12,7 @@ const StellarStrike = () => {
   const [selectedShip, setSelectedShip] = useState(null);
   const gameLoopRef = useRef(null);
   const gameDataRef = useRef({
-    player: { x: 482, y: 640, width: 60, height: 60, speed: 5, maxSpeed: 8 },
+    player: { x: 482, y: 650, width: 60, height: 60, speed: 5, maxSpeed: 8 },
     bullets: [],
     enemies: [],
     enemyBullets: [],
@@ -155,7 +155,7 @@ const StellarStrike = () => {
     setLevel(1);
     setEnemiesKilled(0);
     gameDataRef.current = {
-      player: { x: 482, y: 640, width: 60, height: 60, speed: 5, maxSpeed: 8 },
+      player: { x: 482, y: 650, width: 60, height: 60, speed: 5, maxSpeed: 8 },
       bullets: [],
       enemies: [],
       enemyBullets: [],
@@ -335,7 +335,7 @@ const StellarStrike = () => {
       boss.x += Math.sin(Date.now() * 0.001) * 2;
     } else if (boss.movePattern === 1) {
       boss.x += boss.speed * 2;
-      if (boss.x > 924 || boss.x < 0) boss.speed *= -1;
+      if (boss.x > 904 || boss.x < 0) boss.speed *= -1;
     }
     
     boss.y = Math.min(100, boss.y + 0.3);
@@ -382,7 +382,7 @@ const StellarStrike = () => {
     game.enemyBullets = game.enemyBullets.filter(b => {
       b.x += Math.cos(b.angle) * b.speed;
       b.y += Math.sin(b.angle) * b.speed;
-      return b.y < 818 && b.y > -b.height && b.x > 0 && b.x < 1024;
+      return b.y < 800 && b.y > -b.height && b.x > 0 && b.x < 1024;
     });
 
     const now = Date.now();
@@ -425,7 +425,7 @@ const StellarStrike = () => {
         return false;
       }
       
-      return p.y < 818;
+      return p.y < 800;
     });
 
     game.enemies = game.enemies.filter(e => {
@@ -488,7 +488,7 @@ const StellarStrike = () => {
         }
       }
 
-      return e.y < 818 && e.y > -e.height;
+      return e.y < 800 && e.y > -e.height;
     });
 
     for (let i = game.enemyBullets.length - 1; i >= 0; i--) {
@@ -520,7 +520,7 @@ const StellarStrike = () => {
     ctx.fillRect(0, 0, 1024, 768);
 
     ctx.fillStyle = '#fff';
-    for (let i = 0; i < 150; i++) {
+    for (let i = 0; i < 130; i++) {
       const x = (i * 123) % 1024;
       const y = (i * 456 + Date.now() * 0.03 * (1 + i % 3)) % 768;
       const size = 1 + (i % 3);
@@ -647,8 +647,8 @@ const StellarStrike = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen w-full bg-gradient-to-b from-slate-900 to-black">
-      <div className="w-full max-w-[1040px] flex flex-col p-2">
+    <div className="flex flex-col items-center justify-center min-h-screen w-full bg-gradient-to-b from-slate-900 to-black overflow-hidden">
+      <div className="w-full max-w-[1100px] min-h-screen flex flex-col p-2 sm:p-4 md:p-6">
         {/* Title - Only show when NOT in active gameplay */}
         {(gameState === 'mainMenu' || gameState === 'shipSelection' || gameState === 'gameOver' || gameState === 'victory') && (
           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 text-center tracking-wider mb-2 md:mb-4">
@@ -658,37 +658,37 @@ const StellarStrike = () => {
 
         {/* HUD - Only show during gameplay */}
         {(gameState === 'playing' || gameState === 'paused' || gameState === 'levelTransition') && (
-          <div className="bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 border border-cyan-500/50 rounded-lg p-1.5 md:p-2 mb-2">
-            <div className="grid grid-cols-4 gap-1 text-xs">
-              <div className="bg-black/50 px-1.5 py-0.5 rounded border border-cyan-500/50">
-                <div className="text-cyan-400 text-[9px]">SCORE</div>
-                <div className="text-sm font-bold text-white leading-tight">{score}</div>
+          <div className="bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 border border-cyan-500/50 rounded-lg p-2 md:p-3 mb-2 md:mb-3">
+            <div className="grid grid-cols-4 gap-1 sm:gap-2 text-xs sm:text-sm">
+              <div className="bg-black/50 px-2 py-1 rounded border border-cyan-500/50">
+                <div className="text-cyan-400 text-[10px] sm:text-xs">SCORE</div>
+                <div className="text-sm sm:text-base md:text-lg font-bold text-white">{score}</div>
               </div>
-              <div className="bg-black/50 px-1.5 py-0.5 rounded border border-red-500/50">
-                <div className="text-red-400 text-[9px]">LIVES</div>
-                <div className="flex gap-0.5 flex-wrap">
+              <div className="bg-black/50 px-2 py-1 rounded border border-red-500/50">
+                <div className="text-red-400 text-[10px] sm:text-xs">LIVES</div>
+                <div className="flex gap-0.5 sm:gap-1 flex-wrap">
                   {[...Array(lives)].map((_, i) => (
-                    <span key={i} className="text-[10px]">❤️</span>
+                    <span key={i} className="text-xs sm:text-sm">❤️</span>
                   ))}
                 </div>
               </div>
-              <div className="bg-black/50 px-1.5 py-0.5 rounded border border-purple-500/50">
-                <div className="text-purple-400 text-[9px]">LEVEL</div>
-                <div className="text-sm font-bold text-white leading-tight">{level}/6</div>
+              <div className="bg-black/50 px-2 py-1 rounded border border-purple-500/50">
+                <div className="text-purple-400 text-[10px] sm:text-xs">LEVEL</div>
+                <div className="text-sm sm:text-base md:text-lg font-bold text-white">{level}/6</div>
               </div>
-              <div className="bg-black/50 px-1.5 py-0.5 rounded border border-yellow-500/50">
-                <div className="text-yellow-400 text-[9px]">KILLS</div>
-                <div className="text-sm font-bold text-white leading-tight">{enemiesKilled}/{levelConfig[level]?.enemiesRequired}</div>
+              <div className="bg-black/50 px-2 py-1 rounded border border-yellow-500/50">
+                <div className="text-yellow-400 text-[10px] sm:text-xs">PROGRESS</div>
+                <div className="text-sm sm:text-base md:text-lg font-bold text-white">{enemiesKilled}/{levelConfig[level]?.enemiesRequired}</div>
               </div>
             </div>
-            <div className="text-center mt-0.5">
-              <div className="text-[10px] font-bold text-cyan-300">{levelConfig[level]?.name}</div>
+            <div className="text-center mt-1">
+              <div className="text-xs sm:text-sm md:text-base font-bold text-cyan-300">{levelConfig[level]?.name}</div>
             </div>
             {(gameDataRef.current.spreadShot || gameDataRef.current.rapidFire || gameDataRef.current.shield) && (
-              <div className="flex gap-1 justify-center mt-0.5 flex-wrap text-[9px]">
-                {gameDataRef.current.spreadShot && <div className="bg-orange-600/80 px-1.5 py-0.5 rounded-full font-bold">⚡SPREAD</div>}
-                {gameDataRef.current.rapidFire && <div className="bg-yellow-600/80 px-1.5 py-0.5 rounded-full font-bold">🔥RAPID</div>}
-                {gameDataRef.current.shield && <div className="bg-cyan-600/80 px-1.5 py-0.5 rounded-full font-bold">🛡️SHIELD</div>}
+              <div className="flex gap-1 justify-center mt-1 flex-wrap text-[10px] sm:text-xs">
+                {gameDataRef.current.spreadShot && <div className="bg-orange-600/80 px-2 py-0.5 rounded-full font-bold">⚡ SPREAD</div>}
+                {gameDataRef.current.rapidFire && <div className="bg-yellow-600/80 px-2 py-0.5 rounded-full font-bold">🔥 RAPID</div>}
+                {gameDataRef.current.shield && <div className="bg-cyan-600/80 px-2 py-0.5 rounded-full font-bold">🛡️ SHIELD</div>}
               </div>
             )}
           </div>
@@ -698,13 +698,13 @@ const StellarStrike = () => {
         <div ref={containerRef} className="relative flex-1 flex items-center justify-center min-h-[400px] md:min-h-[500px]">
           <canvas
             ref={canvasRef}
-            width={800}
-            height={600}
+            width={1024}
+            height={768}
             className="border-2 border-cyan-500 rounded-lg shadow-2xl w-full h-auto"
             style={{ 
               display: gameState === 'playing' || gameState === 'paused' || gameState === 'levelTransition' ? 'block' : 'none',
-              maxWidth: '800px',
-              maxHeight: '600px'
+              maxWidth: '1024px',
+              maxHeight: '768px'
             }}
           />
 
