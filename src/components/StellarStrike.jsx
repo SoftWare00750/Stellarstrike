@@ -821,22 +821,22 @@ const StellarStrike = () => {
 
           {/* Main Menu Screen */}
           {gameState === 'mainMenu' && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 via-purple-900 to-black border-2 border-cyan-500 rounded-lg shadow-2xl p-4 overflow-y-auto">
-              <div className="text-center mb-6 max-w-2xl">
-                <p className="text-cyan-300 text-sm md:text-base mb-1">Defend the Galaxy</p>
-                <p className="text-purple-300 text-xs md:text-sm mb-4">6 Levels • Epic Boss Battle</p>
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 via-purple-900 to-black border-2 border-cyan-500 rounded-lg shadow-2xl p-4 md:p-8 overflow-y-auto">
+              <div className="text-center mb-6 max-w-3xl w-full">
+                <p className="text-cyan-300 text-sm md:text-lg mb-2">Defend the Galaxy</p>
+                <p className="text-purple-300 text-xs md:text-base mb-4">6 Levels • Epic Boss Battle</p>
               </div>
               
-              <div className="space-y-3 w-full max-w-md">
+              <div className="space-y-3 w-full max-w-xl">
                 <button 
                   onClick={goToShipSelection} 
-                  className="block w-full px-6 py-4 bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white text-lg md:text-xl font-bold rounded-lg transition-all hover:scale-105 shadow-lg"
+                  className="block w-full px-6 py-4 bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white text-lg md:text-2xl font-bold rounded-lg transition-all hover:scale-105 shadow-lg"
                 >
                   🚀 START GAME
                 </button>
               </div>
               
-              <div className="text-cyan-300 text-center space-y-1 text-[10px] sm:text-xs md:text-sm mt-8 max-w-2xl">
+              <div className="text-cyan-300 text-center space-y-2 text-[10px] sm:text-xs md:text-base mt-8 max-w-3xl w-full">
                 <p>⌨️ Arrow Keys - Move | Spacebar - Shoot</p>
                 <p>📱 Touch & Drag Ship - Move | Fire Button - Shoot</p>
                 <p>ESC - Pause | Collect power-ups!</p>
@@ -846,27 +846,27 @@ const StellarStrike = () => {
 
           {/* Ship Selection Screen */}
           {gameState === 'shipSelection' && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 via-purple-900 to-black border-2 border-cyan-500 rounded-lg shadow-2xl p-4 overflow-y-auto">
-              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-yellow-400 mb-4">Choose Your Ship</h2>
-              <div className="flex gap-4 md:gap-6 mb-6">
-                <button onClick={() => startGame('blue')} className="flex flex-col items-center p-4 md:p-6 bg-cyan-900/50 border-2 border-cyan-500 rounded-lg hover:bg-cyan-800/50 hover:scale-105 transition-all">
-                  <div className="w-20 h-20 md:w-24 md:h-24 bg-cyan-500/20 rounded-lg flex items-center justify-center mb-2">
-                    <span className="text-4xl md:text-5xl">🚀</span>
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 via-purple-900 to-black border-2 border-cyan-500 rounded-lg shadow-2xl p-4 md:p-8 overflow-y-auto">
+              <h2 className="text-lg sm:text-2xl md:text-3xl font-bold text-yellow-400 mb-6">Choose Your Ship</h2>
+              <div className="flex gap-4 md:gap-8 mb-8">
+                <button onClick={() => startGame('blue')} className="flex flex-col items-center p-4 md:p-8 bg-cyan-900/50 border-2 border-cyan-500 rounded-lg hover:bg-cyan-800/50 hover:scale-105 transition-all w-48 md:w-64">
+                  <div className="w-20 h-20 md:w-32 md:h-32 bg-cyan-500/20 rounded-lg flex items-center justify-center mb-3">
+                    <span className="text-4xl md:text-6xl">🚀</span>
                   </div>
-                  <span className="text-cyan-400 font-bold text-sm md:text-base">BLUE STRIKER</span>
-                  <span className="text-cyan-300 text-xs mt-1">Balanced Power</span>
+                  <span className="text-cyan-400 font-bold text-sm md:text-xl">BLUE STRIKER</span>
+                  <span className="text-cyan-300 text-xs md:text-sm mt-2">Balanced Power</span>
                 </button>
-                <button onClick={() => startGame('red')} className="flex flex-col items-center p-4 md:p-6 bg-red-900/50 border-2 border-red-500 rounded-lg hover:bg-red-800/50 hover:scale-105 transition-all">
-                  <div className="w-20 h-20 md:w-24 md:h-24 bg-red-500/20 rounded-lg flex items-center justify-center mb-2">
-                    <span className="text-4xl md:text-5xl">🔴</span>
+                <button onClick={() => startGame('red')} className="flex flex-col items-center p-4 md:p-8 bg-red-900/50 border-2 border-red-500 rounded-lg hover:bg-red-800/50 hover:scale-105 transition-all w-48 md:w-64">
+                  <div className="w-20 h-20 md:w-32 md:h-32 bg-red-500/20 rounded-lg flex items-center justify-center mb-3">
+                    <span className="text-4xl md:text-6xl">🔴</span>
                   </div>
-                  <span className="text-red-400 font-bold text-sm md:text-base">RED PHOENIX</span>
-                  <span className="text-red-300 text-xs mt-1">High Speed</span>
+                  <span className="text-red-400 font-bold text-sm md:text-xl">RED PHOENIX</span>
+                  <span className="text-red-300 text-xs md:text-sm mt-2">High Speed</span>
                 </button>
               </div>
               <button 
                 onClick={returnToMainMenu} 
-                className="px-6 py-2 bg-slate-600 hover:bg-slate-500 text-white text-sm md:text-base font-bold rounded-lg transition-all"
+                className="px-8 py-3 bg-slate-600 hover:bg-slate-500 text-white text-sm md:text-lg font-bold rounded-lg transition-all"
               >
                 ← BACK
               </button>
@@ -875,35 +875,35 @@ const StellarStrike = () => {
 
           {/* Game Over Screen */}
           {gameState === 'gameOver' && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-red-900 via-black to-black border-2 border-red-500 rounded-lg shadow-2xl p-4 overflow-y-auto">
-              <h2 className="text-3xl sm:text-5xl md:text-6xl font-bold text-red-500 mb-4 animate-pulse">GAME OVER</h2>
-              <div className="bg-black/50 p-4 rounded-lg mb-4 border border-red-500/50">
-                <p className="text-xl sm:text-2xl md:text-3xl text-cyan-400 mb-1">Final Score</p>
-                <p className="text-3xl sm:text-4xl md:text-5xl font-bold text-white text-center">{score}</p>
-                <p className="text-sm sm:text-base md:text-lg text-purple-400 mt-1 text-center">Level {level}/6</p>
-                <p className="text-xs sm:text-sm md:text-base text-yellow-400 text-center">Enemies: {enemiesKilled}</p>
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-red-900 via-black to-black border-2 border-red-500 rounded-lg shadow-2xl p-4 md:p-8 overflow-y-auto">
+              <h2 className="text-3xl sm:text-5xl md:text-7xl font-bold text-red-500 mb-6 animate-pulse">GAME OVER</h2>
+              <div className="bg-black/50 p-6 md:p-8 rounded-lg mb-6 border border-red-500/50 w-full max-w-xl">
+                <p className="text-xl sm:text-2xl md:text-4xl text-cyan-400 mb-2">Final Score</p>
+                <p className="text-3xl sm:text-4xl md:text-6xl font-bold text-white text-center">{score}</p>
+                <p className="text-sm sm:text-base md:text-xl text-purple-400 mt-2 text-center">Level {level}/6</p>
+                <p className="text-xs sm:text-sm md:text-lg text-yellow-400 text-center">Enemies: {enemiesKilled}</p>
               </div>
-              <div className="space-y-2 w-full max-w-xs">
-                <button onClick={() => startGame(selectedShip)} className="block w-full px-4 py-3 bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white text-sm md:text-base font-bold rounded-lg transition-all">🎮 PLAY AGAIN</button>
-                <button onClick={returnToMainMenu} className="block w-full px-4 py-3 bg-slate-600 hover:bg-slate-500 text-white text-sm md:text-base font-bold rounded-lg transition-all">🏠 MAIN MENU</button>
+              <div className="space-y-3 w-full max-w-xl">
+                <button onClick={() => startGame(selectedShip)} className="block w-full px-6 py-4 bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white text-sm md:text-xl font-bold rounded-lg transition-all">🎮 PLAY AGAIN</button>
+                <button onClick={returnToMainMenu} className="block w-full px-6 py-4 bg-slate-600 hover:bg-slate-500 text-white text-sm md:text-xl font-bold rounded-lg transition-all">🏠 MAIN MENU</button>
               </div>
             </div>
           )}
 
           {/* Victory Screen */}
           {gameState === 'victory' && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-yellow-900 via-purple-900 to-black border-2 border-yellow-500 rounded-lg shadow-2xl p-4 overflow-y-auto">
-              <h2 className="text-3xl sm:text-5xl md:text-6xl font-bold text-yellow-400 mb-4 animate-bounce">🎉 VICTORY! 🎉</h2>
-              <p className="text-lg sm:text-xl md:text-2xl text-cyan-300 mb-3">You saved the galaxy!</p>
-              <div className="bg-black/50 p-4 rounded-lg mb-4 border border-yellow-500/50">
-                <p className="text-xl sm:text-2xl md:text-3xl text-cyan-400 mb-1">Final Score</p>
-                <p className="text-3xl sm:text-4xl md:text-5xl font-bold text-white text-center">{score}</p>
-                <p className="text-sm sm:text-base md:text-lg text-green-400 mt-1 text-center">All 6 Levels Complete!</p>
-                <p className="text-xs sm:text-sm md:text-base text-purple-400 text-center">Total Enemies: {enemiesKilled}</p>
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-yellow-900 via-purple-900 to-black border-2 border-yellow-500 rounded-lg shadow-2xl p-4 md:p-8 overflow-y-auto">
+              <h2 className="text-3xl sm:text-5xl md:text-7xl font-bold text-yellow-400 mb-6 animate-bounce">🎉 VICTORY! 🎉</h2>
+              <p className="text-lg sm:text-xl md:text-3xl text-cyan-300 mb-4">You saved the galaxy!</p>
+              <div className="bg-black/50 p-6 md:p-8 rounded-lg mb-6 border border-yellow-500/50 w-full max-w-xl">
+                <p className="text-xl sm:text-2xl md:text-4xl text-cyan-400 mb-2">Final Score</p>
+                <p className="text-3xl sm:text-4xl md:text-6xl font-bold text-white text-center">{score}</p>
+                <p className="text-sm sm:text-base md:text-xl text-green-400 mt-2 text-center">All 6 Levels Complete!</p>
+                <p className="text-xs sm:text-sm md:text-lg text-purple-400 text-center">Total Enemies: {enemiesKilled}</p>
               </div>
-              <div className="space-y-2 w-full max-w-xs">
-                <button onClick={() => startGame(selectedShip)} className="block w-full px-4 py-3 bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white text-sm md:text-base font-bold rounded-lg transition-all">🎮 PLAY AGAIN</button>
-                <button onClick={returnToMainMenu} className="block w-full px-4 py-3 bg-slate-600 hover:bg-slate-500 text-white text-sm md:text-base font-bold rounded-lg transition-all">🏠 MAIN MENU</button>
+              <div className="space-y-3 w-full max-w-xl">
+                <button onClick={() => startGame(selectedShip)} className="block w-full px-6 py-4 bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white text-sm md:text-xl font-bold rounded-lg transition-all">🎮 PLAY AGAIN</button>
+                <button onClick={returnToMainMenu} className="block w-full px-6 py-4 bg-slate-600 hover:bg-slate-500 text-white text-sm md:text-xl font-bold rounded-lg transition-all">🏠 MAIN MENU</button>
               </div>
             </div>
           )}
