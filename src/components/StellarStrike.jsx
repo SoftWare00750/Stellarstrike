@@ -35,7 +35,7 @@ const StellarStrike = () => {
   const imagesRef = useRef({});
   const [imagesLoaded, setImagesLoaded] = useState(false);
 
-  // Level configuration - Increased enemy density
+  // Level configuration
   const levelConfig = {
     1: { enemiesRequired: 25, spawnRate: 1200, bossLevel: false, name: "Asteroid Belt", difficulty: 1 },
     2: { enemiesRequired: 40, spawnRate: 900, bossLevel: false, name: "Enemy Scouts", difficulty: 1.3 },
@@ -47,16 +47,17 @@ const StellarStrike = () => {
 
   useEffect(() => {
     const loadImages = () => {
+      // FIXED: Use absolute paths from public folder (no ./ prefix)
       const imageUrls = {
-        playerBlue: './assets/sprites/player-ship-blue.png',
-        playerRed: './assets/sprites/player-ship-red.png',
-        enemySmallDrone: './assets/sprites/enemy-small-drone.png',
-        enemyFighter: './assets/sprites/enemy-alien-fighter.png',
-        enemyBoss: './assets/sprites/enemy-boss-ship.png',
-        spreadshot: './assets/sprites/spreadshot.png',
-        rapidfire: './assets/sprites/rapidfire.png',
-        shield: './assets/sprites/shield.png',
-        life: './assets/sprites/life.png'
+        playerBlue: '/assets/sprites/player-ship-blue.png',
+        playerRed: '/assets/sprites/player-ship-red.png',
+        enemySmallDrone: '/assets/sprites/enemy-small-drone.png',
+        enemyFighter: '/assets/sprites/enemy-alien-fighter.png',
+        enemyBoss: '/assets/sprites/enemy-boss-ship.png',
+        spreadshot: '/assets/sprites/spreadshot.png',
+        rapidfire: '/assets/sprites/rapidfire.png',
+        shield: '/assets/sprites/shield.png',
+        life: '/assets/sprites/life.png'
       };
 
       let loadedCount = 0;
@@ -66,12 +67,19 @@ const StellarStrike = () => {
         const img = new Image();
         img.onload = () => {
           loadedCount++;
-          if (loadedCount === totalImages) setImagesLoaded(true);
+          console.log(`✅ Loaded: ${url}`);
+          if (loadedCount === totalImages) {
+            console.log('🎮 All images loaded successfully!');
+            setImagesLoaded(true);
+          }
         };
         img.onerror = () => {
-          console.warn(`Failed to load: ${url}`);
+          console.warn(`❌ Failed to load: ${url}`);
           loadedCount++;
-          if (loadedCount === totalImages) setImagesLoaded(true);
+          if (loadedCount === totalImages) {
+            console.log('⚠️ Loading complete (some images missing)');
+            setImagesLoaded(true);
+          }
         };
         img.src = url;
         imagesRef.current[key] = img;
@@ -285,7 +293,6 @@ const StellarStrike = () => {
       canShoot = false;
     }
     
-    // Assign random movement pattern
     const patterns = ['straight', 'zigzag', 'sine', 'diagonal'];
     const movePattern = patterns[Math.floor(Math.random() * patterns.length)];
     
@@ -305,10 +312,10 @@ const StellarStrike = () => {
       shootInterval: 2000 + Math.random() * 2000,
       movePattern: movePattern,
       moveTimer: 0,
-      amplitude: 50 + Math.random() * 100, // For sine and zigzag patterns
+      amplitude: 50 + Math.random() * 100,
       frequency: 0.02 + Math.random() * 0.03,
-      initialX: Math.random() * (1024 - size), // Store initial X for sine pattern
-      zigzagDirection: Math.random() > 0.5 ? 1 : -1 // Direction for zigzag
+      initialX: Math.random() * (1024 - size),
+      zigzagDirection: Math.random() > 0.5 ? 1 : -1
     });
   };
 
@@ -433,42 +440,31 @@ const StellarStrike = () => {
       if (e.isBoss) {
         updateBoss(e, game);
       } else {
-        // Apply movement pattern
         e.moveTimer += 16;
         
         switch(e.movePattern) {
           case 'straight':
-            // Simple straight down movement
             e.y += e.speed;
             break;
-            
           case 'zigzag':
-            // Zigzag pattern - move down and alternate left/right
             e.y += e.speed;
             if (e.moveTimer % 500 < 250) {
               e.x += e.speed * e.zigzagDirection;
             } else {
               e.x -= e.speed * e.zigzagDirection;
             }
-            // Keep in bounds
             if (e.x < 0 || e.x > 1024 - e.width) {
               e.zigzagDirection *= -1;
             }
             break;
-            
           case 'sine':
-            // Sine wave pattern
             e.y += e.speed;
             e.x = e.initialX + Math.sin(e.y * e.frequency) * e.amplitude;
-            // Keep in bounds
             e.x = Math.max(0, Math.min(1024 - e.width, e.x));
             break;
-            
           case 'diagonal':
-            // Diagonal movement with bounce
             e.y += e.speed;
             e.x += e.speed * (e.zigzagDirection || 1);
-            // Bounce off walls
             if (e.x < 0 || e.x > 1024 - e.width) {
               e.zigzagDirection = (e.zigzagDirection || 1) * -1;
             }
@@ -545,15 +541,12 @@ const StellarStrike = () => {
   };
 
   const render = (ctx, game) => {
-    // Reset all context properties at the start
     ctx.globalAlpha = 1;
     ctx.shadowBlur = 0;
     
-    // Clear and draw background
     ctx.fillStyle = '#000814';
     ctx.fillRect(0, 0, 1024, 768);
 
-    // Draw stars
     ctx.save();
     ctx.fillStyle = '#fff';
     for (let i = 0; i < 130; i++) {
@@ -565,7 +558,6 @@ const StellarStrike = () => {
     }
     ctx.restore();
 
-    // Draw bullets
     ctx.save();
     ctx.fillStyle = '#00ff88';
     ctx.shadowBlur = 15;
@@ -575,7 +567,6 @@ const StellarStrike = () => {
     });
     ctx.restore();
 
-    // Draw enemy bullets
     ctx.save();
     ctx.fillStyle = '#ff0055';
     ctx.shadowBlur = 10;
@@ -585,7 +576,6 @@ const StellarStrike = () => {
     });
     ctx.restore();
 
-    // Draw power-ups
     game.powerUps.forEach(p => {
       ctx.save();
       const img = imagesRef.current[p.type];
@@ -606,7 +596,6 @@ const StellarStrike = () => {
       ctx.restore();
     });
 
-    // Draw enemies
     game.enemies.forEach(e => {
       ctx.save();
       const img = imagesRef.current[e.type] || imagesRef.current.enemyBoss;
@@ -629,7 +618,6 @@ const StellarStrike = () => {
       }
       ctx.restore();
       
-      // Draw health bars (with fresh context)
       if (e.health < e.maxHealth || e.isBoss) {
         ctx.save();
         const barWidth = e.width;
@@ -651,7 +639,6 @@ const StellarStrike = () => {
       }
     });
 
-    // Draw particles
     game.particles.forEach(p => {
       ctx.save();
       ctx.fillStyle = p.color;
@@ -660,9 +647,8 @@ const StellarStrike = () => {
       ctx.restore();
     });
 
-    // Draw player ship - with completely isolated context
     ctx.save();
-    ctx.globalAlpha = 1; // Ensure full opacity
+    ctx.globalAlpha = 1;
     const playerImg = selectedShip === 'blue' ? imagesRef.current.playerBlue : imagesRef.current.playerRed;
     if (playerImg?.complete && playerImg.naturalWidth > 0) {
       ctx.drawImage(playerImg, game.player.x, game.player.y, game.player.width, game.player.height);
@@ -678,7 +664,6 @@ const StellarStrike = () => {
     if (action === 'fire') shoot(game);
   };
 
-  // Touch control state for dragging
   const touchStateRef = useRef({
     isDragging: false,
     touchId: null
@@ -699,11 +684,9 @@ const StellarStrike = () => {
     
     const game = gameDataRef.current;
     
-    // Center the player ship on the touch point
     game.player.x = x - game.player.width / 2;
     game.player.y = y - game.player.height / 2;
     
-    // Keep player in bounds
     game.player.x = Math.max(0, Math.min(1024 - game.player.width, game.player.x));
     game.player.y = Math.max(0, Math.min(768 - game.player.height, game.player.y));
   };
@@ -721,69 +704,67 @@ const StellarStrike = () => {
     
     const game = gameDataRef.current;
     
-    // Center the player ship on the mouse point
     game.player.x = x - game.player.width / 2;
     game.player.y = y - game.player.height / 2;
     
-    // Keep player in bounds
     game.player.x = Math.max(0, Math.min(1024 - game.player.width, game.player.x));
     game.player.y = Math.max(0, Math.min(768 - game.player.height, game.player.y));
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen w-full bg-gradient-to-b from-slate-900 to-black overflow-hidden touch-none">
-      <div className="w-full h-full max-w-[1100px] flex flex-col p-1 sm:p-2 gap-1">{/* Added gap for better spacing */}
-        {/* Title - Only show when NOT in active gameplay */}
+    <div className="flex flex-col items-center justify-center min-h-screen w-full bg-gradient-to-b from-slate-900 to-black overflow-hidden touch-none p-2 sm:p-4">
+      <div className="w-full max-w-[1100px] flex flex-col gap-2">
+        {/* Title */}
         {(gameState === 'mainMenu' || gameState === 'shipSelection' || gameState === 'gameOver' || gameState === 'victory') && (
-          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 text-center tracking-wider mb-1 sm:mb-2">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 text-center tracking-wider">
             STELLAR STRIKE
           </h1>
         )}
 
-        {/* OPTIMIZED HUD - Compact design */}
+        {/* HUD */}
         {(gameState === 'playing' || gameState === 'paused' || gameState === 'levelTransition') && (
-          <div className="bg-gradient-to-r from-slate-700 via-purple-700 to-slate-700 border border-cyan-400/40 rounded p-1 sm:p-1.5 mb-1">
-            <div className="grid grid-cols-4 gap-1 text-[10px] sm:text-xs">
-              <div className="bg-black/50 px-1.5 py-0.5 rounded border border-cyan-500/50">
-                <div className="text-cyan-400 text-[8px] sm:text-[9px]">SCORE</div>
-                <div className="text-xs sm:text-sm font-bold text-white leading-tight">{score}</div>
+          <div className="bg-gradient-to-r from-slate-700 via-purple-700 to-slate-700 border border-cyan-400/40 rounded p-2">
+            <div className="grid grid-cols-4 gap-2 text-xs sm:text-sm">
+              <div className="bg-black/50 px-2 py-1 rounded border border-cyan-500/50">
+                <div className="text-cyan-400 text-[9px] sm:text-xs">SCORE</div>
+                <div className="text-sm sm:text-base font-bold text-white">{score}</div>
               </div>
-              <div className="bg-black/50 px-1.5 py-0.5 rounded border border-red-500/50">
-                <div className="text-red-400 text-[8px] sm:text-[9px]">LIVES</div>
+              <div className="bg-black/50 px-2 py-1 rounded border border-red-500/50">
+                <div className="text-red-400 text-[9px] sm:text-xs">LIVES</div>
                 <div className="flex gap-0.5">
                   {[...Array(lives)].map((_, i) => (
-                    <span key={i} className="text-[10px] sm:text-xs leading-none">❤️</span>
+                    <span key={i} className="text-xs sm:text-sm">❤️</span>
                   ))}
                 </div>
               </div>
-              <div className="bg-black/50 px-1.5 py-0.5 rounded border border-purple-500/50">
-                <div className="text-purple-400 text-[8px] sm:text-[9px]">LVL</div>
-                <div className="text-xs sm:text-sm font-bold text-white leading-tight">{level}/6</div>
+              <div className="bg-black/50 px-2 py-1 rounded border border-purple-500/50">
+                <div className="text-purple-400 text-[9px] sm:text-xs">LVL</div>
+                <div className="text-sm sm:text-base font-bold text-white">{level}/6</div>
               </div>
-              <div className="bg-black/50 px-1.5 py-0.5 rounded border border-yellow-500/50">
-                <div className="text-yellow-400 text-[8px] sm:text-[9px]">KILL</div>
-                <div className="text-xs sm:text-sm font-bold text-white leading-tight">{enemiesKilled}/{levelConfig[level]?.enemiesRequired}</div>
+              <div className="bg-black/50 px-2 py-1 rounded border border-yellow-500/50">
+                <div className="text-yellow-400 text-[9px] sm:text-xs">KILL</div>
+                <div className="text-sm sm:text-base font-bold text-white">{enemiesKilled}/{levelConfig[level]?.enemiesRequired}</div>
               </div>
             </div>
-            <div className="text-center mt-0.5">
-              <div className="text-[9px] sm:text-[10px] font-bold text-cyan-300">{levelConfig[level]?.name}</div>
+            <div className="text-center mt-1">
+              <div className="text-xs sm:text-sm font-bold text-cyan-300">{levelConfig[level]?.name}</div>
             </div>
             {(gameDataRef.current.spreadShot || gameDataRef.current.rapidFire) && (
-              <div className="flex gap-0.5 justify-center mt-0.5 flex-wrap text-[8px] sm:text-[9px]">
-                {gameDataRef.current.spreadShot && <div className="bg-orange-600/80 px-1 py-0.5 rounded-full font-bold">⚡SPREAD</div>}
-                {gameDataRef.current.rapidFire && <div className="bg-yellow-600/80 px-1 py-0.5 rounded-full font-bold">🔥RAPID</div>}
+              <div className="flex gap-1 justify-center mt-1 flex-wrap text-[9px] sm:text-xs">
+                {gameDataRef.current.spreadShot && <div className="bg-orange-600/80 px-2 py-0.5 rounded-full font-bold">⚡SPREAD</div>}
+                {gameDataRef.current.rapidFire && <div className="bg-yellow-600/80 px-2 py-0.5 rounded-full font-bold">🔥RAPID</div>}
               </div>
             )}
           </div>
         )}
 
-        {/* Game Canvas Container - Optimized for mobile */}
-        <div ref={containerRef} className="relative flex-1 flex items-center justify-center overflow-hidden min-h-0">
+        {/* Game Canvas Container */}
+        <div ref={containerRef} className="relative w-full aspect-[4/3] flex items-center justify-center bg-black rounded-lg overflow-hidden">
           <canvas
             ref={canvasRef}
             width={1024}
             height={768}
-            className="border-2 border-cyan-500 rounded shadow-2xl max-w-full max-h-full object-contain"
+            className="border-2 border-cyan-500 rounded shadow-2xl w-full h-full object-contain"
             style={{ 
               display: gameState === 'playing' || gameState === 'paused' || gameState === 'levelTransition' ? 'block' : 'none'
             }}
@@ -798,131 +779,128 @@ const StellarStrike = () => {
             onMouseLeave={() => touchStateRef.current.isDragging = false}
           />
 
-          {/* Level Transition Overlay */}
+          {/* Level Transition */}
           {gameState === 'levelTransition' && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/90 rounded-lg backdrop-blur-sm z-10">
-              <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold text-green-400 mb-3 animate-bounce">LEVEL {level} COMPLETE!</h2>
-              <p className="text-lg sm:text-xl md:text-2xl text-cyan-300">Advancing to Level {level + 1}</p>
-              <p className="text-base sm:text-lg md:text-xl text-purple-400 mt-2">{levelConfig[level + 1]?.name}</p>
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/90 rounded-lg backdrop-blur-sm z-10 p-4">
+              <h2 className="text-3xl sm:text-5xl font-bold text-green-400 mb-4 animate-bounce">LEVEL {level} COMPLETE!</h2>
+              <p className="text-xl sm:text-2xl text-cyan-300">Advancing to Level {level + 1}</p>
+              <p className="text-lg sm:text-xl text-purple-400 mt-2">{levelConfig[level + 1]?.name}</p>
             </div>
           )}
 
           {/* Pause Screen */}
           {gameState === 'paused' && (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/90 rounded-lg backdrop-blur-sm z-10 p-4">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-cyan-400 mb-6">⏸ PAUSED</h2>
-              <div className="space-y-2 w-full max-w-xs px-4">
-                <button onClick={() => setGameState('playing')} className="block w-full px-4 py-3 bg-cyan-600 hover:bg-cyan-500 text-white text-sm md:text-base font-bold rounded-lg transition-all">▶ RESUME</button>
-                <button onClick={() => startGame(selectedShip)} className="block w-full px-4 py-3 bg-purple-600 hover:bg-purple-500 text-white text-sm md:text-base font-bold rounded-lg transition-all">🔄 RESTART</button>
-                <button onClick={returnToMainMenu} className="block w-full px-4 py-3 bg-slate-600 hover:bg-slate-500 text-white text-sm md:text-base font-bold rounded-lg transition-all">🏠 MAIN MENU</button>
+              <h2 className="text-4xl sm:text-5xl font-bold text-cyan-400 mb-6">⏸ PAUSED</h2>
+              <div className="space-y-3 w-full max-w-md px-4">
+                <button onClick={() => setGameState('playing')} className="w-full px-6 py-3 bg-cyan-600 hover:bg-cyan-500 text-white text-base sm:text-lg font-bold rounded-lg">▶ RESUME</button>
+                <button onClick={() => startGame(selectedShip)} className="w-full px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white text-base sm:text-lg font-bold rounded-lg">🔄 RESTART</button>
+                <button onClick={returnToMainMenu} className="w-full px-6 py-3 bg-slate-600 hover:bg-slate-500 text-white text-base sm:text-lg font-bold rounded-lg">🏠 MENU</button>
               </div>
             </div>
           )}
 
-          {/* Main Menu Screen */}
+          {/* Main Menu - FIXED: Better mobile width */}
           {gameState === 'mainMenu' && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 via-purple-900 to-black border-2 border-cyan-500 rounded-lg shadow-2xl p-4 md:p-8 overflow-y-auto">
-              <div className="text-center mb-6 max-w-3xl w-full">
-                <p className="text-cyan-300 text-sm md:text-lg mb-2">Defend the Galaxy</p>
-                <p className="text-purple-300 text-xs md:text-base mb-4">6 Levels • Epic Boss Battle</p>
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 via-purple-900 to-black border-2 border-cyan-500 rounded-lg shadow-2xl p-4 sm:p-8 overflow-y-auto">
+              <div className="text-center mb-6 w-full">
+                <p className="text-cyan-300 text-base sm:text-lg mb-2">Defend the Galaxy</p>
+                <p className="text-purple-300 text-sm sm:text-base mb-4">6 Levels • Epic Boss Battle</p>
               </div>
               
-              <div className="space-y-3 w-full max-w-xl">
+              <div className="w-full max-w-md px-4">
                 <button 
                   onClick={goToShipSelection} 
-                  className="block w-full px-6 py-4 bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white text-lg md:text-2xl font-bold rounded-lg transition-all hover:scale-105 shadow-lg"
+                  className="w-full px-8 py-5 bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white text-xl sm:text-2xl font-bold rounded-lg transition-all hover:scale-105 shadow-lg"
                 >
                   🚀 START GAME
                 </button>
               </div>
               
-              <div className="text-cyan-300 text-center space-y-2 text-[10px] sm:text-xs md:text-base mt-8 max-w-3xl w-full">
+              <div className="text-cyan-300 text-center space-y-2 text-xs sm:text-sm mt-8 w-full px-4">
                 <p>⌨️ Arrow Keys - Move | Spacebar - Shoot</p>
-                <p>📱 Touch & Drag Ship - Move | Fire Button - Shoot</p>
+                <p>📱 Touch & Drag - Move | Fire Button - Shoot</p>
                 <p>ESC - Pause | Collect power-ups!</p>
               </div>
             </div>
           )}
 
-          {/* Ship Selection Screen */}
+          {/* Ship Selection - FIXED: Better mobile sizing */}
           {gameState === 'shipSelection' && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 via-purple-900 to-black border-2 border-cyan-500 rounded-lg shadow-2xl p-4 md:p-8 overflow-y-auto">
-              <h2 className="text-lg sm:text-2xl md:text-3xl font-bold text-yellow-400 mb-6">Choose Your Ship</h2>
-              <div className="flex gap-4 md:gap-8 mb-8">
-                <button onClick={() => startGame('blue')} className="flex flex-col items-center p-4 md:p-8 bg-cyan-900/50 border-2 border-cyan-500 rounded-lg hover:bg-cyan-800/50 hover:scale-105 transition-all w-48 md:w-64">
-                  <div className="w-20 h-20 md:w-32 md:h-32 bg-cyan-500/20 rounded-lg flex items-center justify-center mb-3">
-                    <span className="text-4xl md:text-6xl">🚀</span>
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 via-purple-900 to-black border-2 border-cyan-500 rounded-lg shadow-2xl p-4 sm:p-8 overflow-y-auto">
+              <h2 className="text-2xl sm:text-3xl font-bold text-yellow-400 mb-6">Choose Your Ship</h2>
+              <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 mb-8 w-full max-w-2xl px-4">
+                <button onClick={() => startGame('blue')} className="flex flex-col items-center p-6 bg-cyan-900/50 border-2 border-cyan-500 rounded-lg hover:bg-cyan-800/50 hover:scale-105 transition-all flex-1">
+                  <div className="w-24 h-24 sm:w-32 sm:h-32 bg-cyan-500/20 rounded-lg flex items-center justify-center mb-3">
+                    <span className="text-5xl sm:text-6xl">🚀</span>
                   </div>
-                  <span className="text-cyan-400 font-bold text-sm md:text-xl">BLUE STRIKER</span>
-                  <span className="text-cyan-300 text-xs md:text-sm mt-2">Balanced Power</span>
+                  <span className="text-cyan-400 font-bold text-lg sm:text-xl">BLUE STRIKER</span>
+                  <span className="text-cyan-300 text-sm">Balanced Power</span>
                 </button>
-                <button onClick={() => startGame('red')} className="flex flex-col items-center p-4 md:p-8 bg-red-900/50 border-2 border-red-500 rounded-lg hover:bg-red-800/50 hover:scale-105 transition-all w-48 md:w-64">
-                  <div className="w-20 h-20 md:w-32 md:h-32 bg-red-500/20 rounded-lg flex items-center justify-center mb-3">
-                    <span className="text-4xl md:text-6xl">🔴</span>
+                <button onClick={() => startGame('red')} className="flex flex-col items-center p-6 bg-red-900/50 border-2 border-red-500 rounded-lg hover:bg-red-800/50 hover:scale-105 transition-all flex-1">
+                  <div className="w-24 h-24 sm:w-32 sm:h-32 bg-red-500/20 rounded-lg flex items-center justify-center mb-3">
+                    <span className="text-5xl sm:text-6xl">🔴</span>
                   </div>
-                  <span className="text-red-400 font-bold text-sm md:text-xl">RED PHOENIX</span>
-                  <span className="text-red-300 text-xs md:text-sm mt-2">High Speed</span>
+                  <span className="text-red-400 font-bold text-lg sm:text-xl">RED PHOENIX</span>
+                  <span className="text-red-300 text-sm">High Speed</span>
                 </button>
               </div>
               <button 
                 onClick={returnToMainMenu} 
-                className="px-8 py-3 bg-slate-600 hover:bg-slate-500 text-white text-sm md:text-lg font-bold rounded-lg transition-all"
+                className="px-8 py-3 bg-slate-600 hover:bg-slate-500 text-white text-base sm:text-lg font-bold rounded-lg"
               >
                 ← BACK
               </button>
             </div>
           )}
 
-          {/* Game Over Screen */}
+          {/* Game Over */}
           {gameState === 'gameOver' && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-red-900 via-black to-black border-2 border-red-500 rounded-lg shadow-2xl p-4 md:p-8 overflow-y-auto">
-              <h2 className="text-3xl sm:text-5xl md:text-7xl font-bold text-red-500 mb-6 animate-pulse">GAME OVER</h2>
-              <div className="bg-black/50 p-6 md:p-8 rounded-lg mb-6 border border-red-500/50 w-full max-w-xl">
-                <p className="text-xl sm:text-2xl md:text-4xl text-cyan-400 mb-2">Final Score</p>
-                <p className="text-3xl sm:text-4xl md:text-6xl font-bold text-white text-center">{score}</p>
-                <p className="text-sm sm:text-base md:text-xl text-purple-400 mt-2 text-center">Level {level}/6</p>
-                <p className="text-xs sm:text-sm md:text-lg text-yellow-400 text-center">Enemies: {enemiesKilled}</p>
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-red-900 via-black to-black border-2 border-red-500 rounded-lg shadow-2xl p-4 sm:p-8 overflow-y-auto">
+              <h2 className="text-4xl sm:text-6xl font-bold text-red-500 mb-6 animate-pulse">GAME OVER</h2>
+              <div className="bg-black/50 p-6 rounded-lg mb-6 border border-red-500/50 w-full max-w-md">
+                <p className="text-2xl sm:text-3xl text-cyan-400 mb-2">Final Score</p>
+                <p className="text-4xl sm:text-5xl font-bold text-white text-center">{score}</p>
+                <p className="text-base sm:text-xl text-purple-400 mt-2 text-center">Level {level}/6</p>
+                <p className="text-sm sm:text-lg text-yellow-400 text-center">Enemies: {enemiesKilled}</p>
               </div>
-              <div className="space-y-3 w-full max-w-xl">
-                <button onClick={() => startGame(selectedShip)} className="block w-full px-6 py-4 bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white text-sm md:text-xl font-bold rounded-lg transition-all">🎮 PLAY AGAIN</button>
-                <button onClick={returnToMainMenu} className="block w-full px-6 py-4 bg-slate-600 hover:bg-slate-500 text-white text-sm md:text-xl font-bold rounded-lg transition-all">🏠 MAIN MENU</button>
+              <div className="space-y-3 w-full max-w-md px-4">
+                <button onClick={() => startGame(selectedShip)} className="w-full px-6 py-4 bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white text-lg font-bold rounded-lg">🎮 PLAY AGAIN</button>
+                <button onClick={returnToMainMenu} className="w-full px-6 py-4 bg-slate-600 hover:bg-slate-500 text-white text-lg font-bold rounded-lg">🏠 MENU</button>
               </div>
             </div>
           )}
 
-          {/* Victory Screen */}
+          {/* Victory */}
           {gameState === 'victory' && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-yellow-900 via-purple-900 to-black border-2 border-yellow-500 rounded-lg shadow-2xl p-4 md:p-8 overflow-y-auto">
-              <h2 className="text-3xl sm:text-5xl md:text-7xl font-bold text-yellow-400 mb-6 animate-bounce">🎉 VICTORY! 🎉</h2>
-              <p className="text-lg sm:text-xl md:text-3xl text-cyan-300 mb-4">You saved the galaxy!</p>
-              <div className="bg-black/50 p-6 md:p-8 rounded-lg mb-6 border border-yellow-500/50 w-full max-w-xl">
-                <p className="text-xl sm:text-2xl md:text-4xl text-cyan-400 mb-2">Final Score</p>
-                <p className="text-3xl sm:text-4xl md:text-6xl font-bold text-white text-center">{score}</p>
-                <p className="text-sm sm:text-base md:text-xl text-green-400 mt-2 text-center">All 6 Levels Complete!</p>
-                <p className="text-xs sm:text-sm md:text-lg text-purple-400 text-center">Total Enemies: {enemiesKilled}</p>
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-yellow-900 via-purple-900 to-black border-2 border-yellow-500 rounded-lg shadow-2xl p-4 sm:p-8 overflow-y-auto">
+              <h2 className="text-4xl sm:text-6xl font-bold text-yellow-400 mb-6 animate-bounce">🎉 VICTORY! 🎉</h2>
+              <p className="text-2xl sm:text-3xl text-cyan-300 mb-4">You saved the galaxy!</p>
+              <div className="bg-black/50 p-6 rounded-lg mb-6 border border-yellow-500/50 w-full max-w-md">
+                <p className="text-2xl sm:text-3xl text-cyan-400 mb-2">Final Score</p>
+                <p className="text-4xl sm:text-5xl font-bold text-white text-center">{score}</p>
+                <p className="text-base sm:text-xl text-green-400 mt-2 text-center">All 6 Levels Complete!</p>
+                <p className="text-sm sm:text-lg text-purple-400 text-center">Total Enemies: {enemiesKilled}</p>
               </div>
-              <div className="space-y-3 w-full max-w-xl">
-                <button onClick={() => startGame(selectedShip)} className="block w-full px-6 py-4 bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white text-sm md:text-xl font-bold rounded-lg transition-all">🎮 PLAY AGAIN</button>
-                <button onClick={returnToMainMenu} className="block w-full px-6 py-4 bg-slate-600 hover:bg-slate-500 text-white text-sm md:text-xl font-bold rounded-lg transition-all">🏠 MAIN MENU</button>
+              <div className="space-y-3 w-full max-w-md px-4">
+                <button onClick={() => startGame(selectedShip)} className="w-full px-6 py-4 bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white text-lg font-bold rounded-lg">🎮 PLAY AGAIN</button>
+                <button onClick={returnToMainMenu} className="w-full px-6 py-4 bg-slate-600 hover:bg-slate-500 text-white text-lg font-bold rounded-lg">🏠 MENU</button>
               </div>
             </div>
           )}
         </div>
 
-        {/* Mobile Controls - Only show during gameplay */}
+        {/* Mobile Fire Button */}
         {gameState === 'playing' && (
-          <div className="flex justify-between items-center gap-2 mt-1 pb-2 md:hidden px-2">
-            {/* Instructions on the left */}
-            <p className="text-cyan-300 text-xs max-w-[180px] flex-1">Touch & drag spaceship to move</p>
-            
-            {/* Fire button on the right */}
+          <div className="flex justify-between items-center gap-3 md:hidden px-2">
+            <p className="text-cyan-300 text-xs sm:text-sm flex-1">Touch & drag spaceship to move</p>
             <button 
               onTouchStart={(e) => { e.preventDefault(); handleMobileControl('fire'); }}
               onMouseDown={() => handleMobileControl('fire')}
-              className="w-20 h-20 bg-gradient-to-br from-red-600 to-orange-600 active:from-red-700 active:to-orange-700 text-white text-base font-bold rounded-full flex flex-col items-center justify-center shadow-lg touch-none select-none flex-shrink-0"
+              className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-red-600 to-orange-600 active:from-red-700 active:to-orange-700 text-white font-bold rounded-full flex flex-col items-center justify-center shadow-lg touch-none select-none flex-shrink-0"
             >
-              <span className="text-2xl">🔥</span>
-              <span className="text-xs">FIRE</span>
+              <span className="text-3xl sm:text-4xl">🔥</span>
+              <span className="text-xs sm:text-sm">FIRE</span>
             </button>
           </div>
         )}
