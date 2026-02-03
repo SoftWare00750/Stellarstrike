@@ -47,7 +47,6 @@ const StellarStrike = () => {
 
   useEffect(() => {
     const loadImages = () => {
-      // FIXED: Use absolute paths from public folder (no ./ prefix)
       const imageUrls = {
         playerBlue: '/assets/sprites/player-ship-blue.png',
         playerRed: '/assets/sprites/player-ship-red.png',
@@ -67,17 +66,13 @@ const StellarStrike = () => {
         const img = new Image();
         img.onload = () => {
           loadedCount++;
-          console.log(`✅ Loaded: ${url}`);
           if (loadedCount === totalImages) {
-            console.log('🎮 All images loaded successfully!');
             setImagesLoaded(true);
           }
         };
         img.onerror = () => {
-          console.warn(`❌ Failed to load: ${url}`);
           loadedCount++;
           if (loadedCount === totalImages) {
-            console.log('⚠️ Loading complete (some images missing)');
             setImagesLoaded(true);
           }
         };
@@ -712,18 +707,18 @@ const StellarStrike = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen w-full bg-gradient-to-b from-slate-900 to-black overflow-hidden touch-none p-2 sm:p-4">
-      <div className="w-full max-w-[1100px] flex flex-col gap-2">
+    <div className="flex flex-col items-center justify-start min-h-screen w-full bg-gradient-to-b from-slate-900 to-black overflow-x-hidden touch-none p-0 sm:p-2">
+      <div className="w-full h-full flex flex-col gap-2 max-w-[1100px]">
         {/* Title */}
         {(gameState === 'mainMenu' || gameState === 'shipSelection' || gameState === 'gameOver' || gameState === 'victory') && (
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 text-center tracking-wider">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 text-center tracking-wider py-2 sm:py-4 flex-shrink-0">
             STELLAR STRIKE
           </h1>
         )}
 
         {/* HUD */}
         {(gameState === 'playing' || gameState === 'paused' || gameState === 'levelTransition') && (
-          <div className="bg-gradient-to-r from-slate-700 via-purple-700 to-slate-700 border border-cyan-400/40 rounded p-2">
+          <div className="bg-gradient-to-r from-slate-700 via-purple-700 to-slate-700 border border-cyan-400/40 rounded p-2 mx-2 sm:mx-0 flex-shrink-0">
             <div className="grid grid-cols-4 gap-2 text-xs sm:text-sm">
               <div className="bg-black/50 px-2 py-1 rounded border border-cyan-500/50">
                 <div className="text-cyan-400 text-[9px] sm:text-xs">SCORE</div>
@@ -758,13 +753,13 @@ const StellarStrike = () => {
           </div>
         )}
 
-        {/* Game Canvas Container */}
-        <div ref={containerRef} className="relative w-full aspect-[4/3] flex items-center justify-center bg-black rounded-lg overflow-hidden">
+        {/* Game Canvas Container - MOBILE OPTIMIZED */}
+        <div ref={containerRef} className="relative w-full flex-1 flex items-center justify-center bg-black overflow-hidden mx-2 sm:mx-0 rounded-lg min-h-0">
           <canvas
             ref={canvasRef}
             width={1024}
             height={768}
-            className="border-2 border-cyan-500 rounded shadow-2xl w-full h-full object-contain"
+            className="border-2 border-cyan-500 rounded shadow-2xl w-full h-full max-h-full object-contain touch-none"
             style={{ 
               display: gameState === 'playing' || gameState === 'paused' || gameState === 'levelTransition' ? 'block' : 'none'
             }}
@@ -800,7 +795,7 @@ const StellarStrike = () => {
             </div>
           )}
 
-          {/* Main Menu - FIXED: Better mobile width */}
+          {/* Main Menu */}
           {gameState === 'mainMenu' && (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 via-purple-900 to-black border-2 border-cyan-500 rounded-lg shadow-2xl p-4 sm:p-8 overflow-y-auto">
               <div className="text-center mb-6 w-full">
@@ -825,7 +820,7 @@ const StellarStrike = () => {
             </div>
           )}
 
-          {/* Ship Selection - FIXED: Better mobile sizing */}
+          {/* Ship Selection */}
           {gameState === 'shipSelection' && (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 via-purple-900 to-black border-2 border-cyan-500 rounded-lg shadow-2xl p-4 sm:p-8 overflow-y-auto">
               <h2 className="text-2xl sm:text-3xl font-bold text-yellow-400 mb-6">Choose Your Ship</h2>
@@ -890,16 +885,16 @@ const StellarStrike = () => {
           )}
         </div>
 
-        {/* Mobile Fire Button */}
+        {/* Mobile Fire Button - FIXED TO ALWAYS SHOW */}
         {gameState === 'playing' && (
-          <div className="flex justify-between items-center gap-3 md:hidden px-2">
-            <p className="text-cyan-300 text-xs sm:text-sm flex-1">Touch & drag spaceship to move</p>
+          <div className="flex justify-between items-center gap-2 px-2 pb-2 sm:pb-4 flex-shrink-0 md:hidden">
+            <p className="text-cyan-300 text-xs sm:text-sm flex-1">Touch & drag to move</p>
             <button 
               onTouchStart={(e) => { e.preventDefault(); handleMobileControl('fire'); }}
               onMouseDown={() => handleMobileControl('fire')}
-              className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-red-600 to-orange-600 active:from-red-700 active:to-orange-700 text-white font-bold rounded-full flex flex-col items-center justify-center shadow-lg touch-none select-none flex-shrink-0"
+              className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-red-600 to-orange-600 active:from-red-700 active:to-orange-700 text-white font-bold rounded-full flex flex-col items-center justify-center shadow-lg touch-none select-none flex-shrink-0"
             >
-              <span className="text-3xl sm:text-4xl">🔥</span>
+              <span className="text-2xl sm:text-3xl">🔥</span>
               <span className="text-xs sm:text-sm">FIRE</span>
             </button>
           </div>
