@@ -3,391 +3,409 @@
 /* Touch Controls Base */
 .mobile-controls {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
-  padding: env(safe-area-inset-bottom, 0);
-  pointer-events: none;
-}
+    bottom: 0;
+      left: 0;
+        right: 0;
+          z-index: 100;
+            padding: env(safe-area-inset-bottom, 0);
+              pointer-events: none;
+              }
 
-.mobile-controls > * {
-  pointer-events: auto;
-}
+              .mobile-controls > * {
+                pointer-events: auto;
+                }
 
-/* Touch Control Buttons */
-.touch-button {
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
-  transition: all 0.1s ease;
-  position: relative;
-  overflow: hidden;
-}
+                /* Touch Control Buttons */
+                .touch-button {
+                  user-select: none;
+                    -webkit-user-select: none;
+                      -webkit-tap-highlight-color: transparent;
+                        touch-action: manipulation;
+                          transition: all 0.1s ease;
+                            position: relative;
+                              overflow: hidden;
+                              }
 
-.touch-button:active {
-  transform: scale(0.92);
-  opacity: 0.8;
-}
+                              .touch-button:active {
+                                transform: scale(0.92);
+                                  opacity: 0.8;
+                                  }
 
-.touch-button::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
-  transform: translate(-50%, -50%);
-  transition: width 0.3s, height 0.3s;
-}
+                                  .touch-button::before {
+                                    content: '';
+                                      position: absolute;
+                                        top: 50%;
+                                          left: 50%;
+                                            width: 0;
+                                              height: 0;
+                                                border-radius: 50%;
+                                                  background: rgba(255, 255, 255, 0.3);
+                                                    transform: translate(-50%, -50%);
+                                                      transition: width 0.3s, height 0.3s;
+                                                      }
 
-.touch-button:active::before {
-  width: 100%;
-  height: 100%;
-}
+                                                      .touch-button:active::before {
+                                                        width: 100%;
+                                                          height: 100%;
+                                                          }
 
-/* Fire Buttons Positioning */
-.fire-button-left,
-.fire-button-right {
-  position: fixed;
-  bottom: 20px;
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-  z-index: 101;
-}
+                                                          /* Fire Buttons Positioning */
+                                                          .fire-button-left,
+                                                          .fire-button-right {
+                                                            position: fixed;
+                                                              bottom: 20px;
+                                                                width: 80px;
+                                                                  height: 80px;
+                                                                    border-radius: 50%;
+                                                                      display: flex;
+                                                                        flex-direction: column;
+                                                                          align-items: center;
+                                                                            justify-content: center;
+                                                                              font-weight: bold;
+                                                                                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+                                                                                  z-index: 101;
+                                                                                  }
 
-.fire-button-left {
-  left: 20px;
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  border: 3px solid #fca5a5;
-}
+                                                                                  .fire-button-left {
+                                                                                    left: 20px;
+                                                                                      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+                                                                                        border: 3px solid #fca5a5;
+                                                                                        }
 
-.fire-button-right {
-  right: 20px;
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  border: 3px solid #fca5a5;
-}
+                                                                                        .fire-button-right {
+                                                                                          right: 20px;
+                                                                                            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+                                                                                              border: 3px solid #fca5a5;
+                                                                                              }
 
-.fire-button-left:active,
-.fire-button-right:active {
-  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.7), 0 0 30px rgba(239, 68, 68, 0.6);
-}
+                                                                                              .fire-button-left:active,
+                                                                                              .fire-button-right:active {
+                                                                                                background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+                                                                                                  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.7), 0 0 30px rgba(239, 68, 68, 0.6);
+                                                                                                  }
 
-/* Canvas Touch Area */
-.touch-canvas {
-  touch-action: none;
-  cursor: none;
-}
+                                                                                                  /* Canvas Touch Area */
+                                                                                                  .touch-canvas {
+                                                                                                    touch-action: none;
+                                                                                                      cursor: none;
+                                                                                                      }
 
-/* Touch Indicator */
-.touch-indicator {
-  position: absolute;
-  width: 60px;
-  height: 60px;
-  border: 3px solid #06b6d4;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 50;
-  background: radial-gradient(circle, rgba(6, 182, 212, 0.3) 0%, transparent 70%);
-  box-shadow: 0 0 20px rgba(6, 182, 212, 0.5);
-  transform: translate(-50%, -50%);
-  opacity: 0;
-  transition: opacity 0.2s;
-}
+                                                                                                      /* Touch Indicator */
+                                                                                                      .touch-indicator {
+                                                                                                        position: absolute;
+                                                                                                          width: 60px;
+                                                                                                            height: 60px;
+                                                                                                              border: 3px solid #06b6d4;
+                                                                                                                border-radius: 50%;
+                                                                                                                  pointer-events: none;
+                                                                                                                    z-index: 50;
+                                                                                                                      background: radial-gradient(circle, rgba(6, 182, 212, 0.3) 0%, transparent 70%);
+                                                                                                                        box-shadow: 0 0 20px rgba(6, 182, 212, 0.5);
+                                                                                                                          transform: translate(-50%, -50%);
+                                                                                                                            opacity: 0;
+                                                                                                                              transition: opacity 0.2s;
+                                                                                                                              }
 
-.touch-indicator.active {
-  opacity: 1;
-  animation: pulse-ring 1s ease-out infinite;
-}
+                                                                                                                              .touch-indicator.active {
+                                                                                                                                opacity: 1;
+                                                                                                                                  animation: pulse-ring 1s ease-out infinite;
+                                                                                                                                  }
 
-@keyframes pulse-ring {
-  0% {
-    transform: translate(-50%, -50%) scale(1);
-    opacity: 1;
-  }
-  100% {
-    transform: translate(-50%, -50%) scale(1.5);
-    opacity: 0;
-  }
-}
+                                                                                                                                  @keyframes pulse-ring {
+                                                                                                                                    0% {
+                                                                                                                                        transform: translate(-50%, -50%) scale(1);
+                                                                                                                                            opacity: 1;
+                                                                                                                                              }
+                                                                                                                                                100% {
+                                                                                                                                                    transform: translate(-50%, -50%) scale(1.5);
+                                                                                                                                                        opacity: 0;
+                                                                                                                                                          }
+                                                                                                                                                          }
 
-/* Mobile Portrait Mode (default) */
-@media screen and (max-width: 768px) and (orientation: portrait) {
-  .game-canvas-container {
-    width: 100vw;
-    height: calc(100vh - 180px);
-    max-height: calc(100vh - 180px);
-  }
+                                                                                                                                                          /* Mobile Portrait Mode (default) */
+                                                                                                                                                          @media screen and (max-width: 768px) and (orientation: portrait) {
+                                                                                                                                                            .game-canvas-container {
+                                                                                                                                                                width: 100vw;
+                                                                                                                                                                    height: calc(100vh - 180px);
+                                                                                                                                                                        max-height: calc(100vh - 180px);
+                                                                                                                                                                          }
 
-  .mobile-hud {
-    font-size: 0.75rem;
-    padding: 0.5rem;
-  }
+                                                                                                                                                                            /* Increase base font size for mobile */
+                                                                                                                                                                              html {
+                                                                                                                                                                                  font-size: 18px !important;
+                                                                                                                                                                                    }
 
-  .fire-button-left,
-  .fire-button-right {
-    width: 70px;
-    height: 70px;
-    font-size: 0.875rem;
-    bottom: calc(env(safe-area-inset-bottom, 0) + 15px);
-  }
+                                                                                                                                                                                      .mobile-hud {
+                                                                                                                                                                                          font-size: 1rem;
+                                                                                                                                                                                              padding: 0.75rem;
+                                                                                                                                                                                                }
 
-  .fire-button-left {
-    left: 15px;
-  }
+                                                                                                                                                                                                  .fire-button-left,
+                                                                                                                                                                                                    .fire-button-right {
+                                                                                                                                                                                                        width: 90px;
+                                                                                                                                                                                                            height: 90px;
+                                                                                                                                                                                                                font-size: 1.125rem;
+                                                                                                                                                                                                                    bottom: calc(env(safe-area-inset-bottom, 0) + 20px);
+                                                                                                                                                                                                                      }
 
-  .fire-button-right {
-    right: 15px;
-  }
+                                                                                                                                                                                                                        .fire-button-left {
+                                                                                                                                                                                                                            left: 20px;
+                                                                                                                                                                                                                              }
 
-  .mobile-hint {
-    position: fixed;
-    bottom: 110px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.8);
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    color: #06b6d4;
-    border: 1px solid #06b6d4;
-    z-index: 100;
-    pointer-events: none;
-    white-space: nowrap;
-  }
-}
+                                                                                                                                                                                                                                .fire-button-right {
+                                                                                                                                                                                                                                    right: 20px;
+                                                                                                                                                                                                                                      }
 
-/* Mobile Landscape Mode */
-@media screen and (max-width: 915px) and (orientation: landscape) {
-  body {
-    overflow: hidden;
-  }
+                                                                                                                                                                                                                                        .mobile-hint {
+                                                                                                                                                                                                                                            position: fixed;
+                                                                                                                                                                                                                                                bottom: 130px;
+                                                                                                                                                                                                                                                    left: 50%;
+                                                                                                                                                                                                                                                        transform: translateX(-50%);
+                                                                                                                                                                                                                                                            background: rgba(0, 0, 0, 0.8);
+                                                                                                                                                                                                                                                                padding: 12px 24px;
+                                                                                                                                                                                                                                                                    border-radius: 24px;
+                                                                                                                                                                                                                                                                        font-size: 1rem;
+                                                                                                                                                                                                                                                                            color: #06b6d4;
+                                                                                                                                                                                                                                                                                border: 2px solid #06b6d4;
+                                                                                                                                                                                                                                                                                    z-index: 100;
+                                                                                                                                                                                                                                                                                        pointer-events: none;
+                                                                                                                                                                                                                                                                                            white-space: nowrap;
+                                                                                                                                                                                                                                                                                              }
+                                                                                                                                                                                                                                                                                              }
 
-  .game-container {
-    width: 100vw;
-    height: 100vh;
-    max-height: 100vh;
-    overflow: hidden;
-  }
+                                                                                                                                                                                                                                                                                              /* Mobile Landscape Mode */
+                                                                                                                                                                                                                                                                                              @media screen and (max-width: 915px) and (orientation: landscape) {
+                                                                                                                                                                                                                                                                                                body {
+                                                                                                                                                                                                                                                                                                    overflow: hidden;
+                                                                                                                                                                                                                                                                                                      }
 
-  .game-canvas-container {
-    width: calc(100vw - 200px);
-    height: 100vh;
-    max-height: 100vh;
-    margin: 0 auto;
-  }
+                                                                                                                                                                                                                                                                                                        /* Increase base font size for landscape */
+                                                                                                                                                                                                                                                                                                          html {
+                                                                                                                                                                                                                                                                                                              font-size: 16px !important;
+                                                                                                                                                                                                                                                                                                                }
 
-  canvas {
-    max-height: 100vh !important;
-    width: auto !important;
-  }
+                                                                                                                                                                                                                                                                                                                  .game-container {
+                                                                                                                                                                                                                                                                                                                      width: 100vw;
+                                                                                                                                                                                                                                                                                                                          height: 100vh;
+                                                                                                                                                                                                                                                                                                                              max-height: 100vh;
+                                                                                                                                                                                                                                                                                                                                  overflow: hidden;
+                                                                                                                                                                                                                                                                                                                                    }
 
-  /* Landscape HUD - Top bar */
-  .mobile-hud {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 90;
-    font-size: 0.7rem;
-    padding: 0.25rem 0.5rem;
-    background: rgba(0, 0, 0, 0.9);
-  }
+                                                                                                                                                                                                                                                                                                                                      .game-canvas-container {
+                                                                                                                                                                                                                                                                                                                                          width: calc(100vw - 200px);
+                                                                                                                                                                                                                                                                                                                                              height: 100vh;
+                                                                                                                                                                                                                                                                                                                                                  max-height: 100vh;
+                                                                                                                                                                                                                                                                                                                                                      margin: 0 auto;
+                                                                                                                                                                                                                                                                                                                                                        }
 
-  /* Landscape Fire Buttons - Vertical layout */
-  .fire-button-left {
-    left: 10px;
-    bottom: 50%;
-    transform: translateY(50%);
-    width: 70px;
-    height: 70px;
-  }
+                                                                                                                                                                                                                                                                                                                                                          canvas {
+                                                                                                                                                                                                                                                                                                                                                              max-height: 100vh !important;
+                                                                                                                                                                                                                                                                                                                                                                  width: auto !important;
+                                                                                                                                                                                                                                                                                                                                                                    }
 
-  .fire-button-right {
-    right: 10px;
-    bottom: 50%;
-    transform: translateY(50%);
-    width: 70px;
-    height: 70px;
-  }
+                                                                                                                                                                                                                                                                                                                                                                      /* Landscape HUD - Top bar */
+                                                                                                                                                                                                                                                                                                                                                                        .mobile-hud {
+                                                                                                                                                                                                                                                                                                                                                                            position: fixed;
+                                                                                                                                                                                                                                                                                                                                                                                top: 0;
+                                                                                                                                                                                                                                                                                                                                                                                    left: 0;
+                                                                                                                                                                                                                                                                                                                                                                                        right: 0;
+                                                                                                                                                                                                                                                                                                                                                                                            z-index: 90;
+                                                                                                                                                                                                                                                                                                                                                                                                font-size: 0.875rem;
+                                                                                                                                                                                                                                                                                                                                                                                                    padding: 0.5rem 0.75rem;
+                                                                                                                                                                                                                                                                                                                                                                                                        background: rgba(0, 0, 0, 0.9);
+                                                                                                                                                                                                                                                                                                                                                                                                          }
 
-  /* Landscape Hint */
-  .mobile-hint {
-    top: 50%;
-    left: 50%;
-    bottom: auto;
-    transform: translate(-50%, -50%);
-    font-size: 0.7rem;
-    padding: 6px 12px;
-  }
+                                                                                                                                                                                                                                                                                                                                                                                                            /* Landscape Fire Buttons - Vertical layout */
+                                                                                                                                                                                                                                                                                                                                                                                                              .fire-button-left {
+                                                                                                                                                                                                                                                                                                                                                                                                                  left: 15px;
+                                                                                                                                                                                                                                                                                                                                                                                                                      bottom: 50%;
+                                                                                                                                                                                                                                                                                                                                                                                                                          transform: translateY(50%);
+                                                                                                                                                                                                                                                                                                                                                                                                                              width: 85px;
+                                                                                                                                                                                                                                                                                                                                                                                                                                  height: 85px;
+                                                                                                                                                                                                                                                                                                                                                                                                                                    }
 
-  /* Hide title in landscape during gameplay */
-  .landscape-hide {
-    display: none !important;
-  }
+                                                                                                                                                                                                                                                                                                                                                                                                                                      .fire-button-right {
+                                                                                                                                                                                                                                                                                                                                                                                                                                          right: 15px;
+                                                                                                                                                                                                                                                                                                                                                                                                                                              bottom: 50%;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                  transform: translateY(50%);
+                                                                                                                                                                                                                                                                                                                                                                                                                                                      width: 85px;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                          height: 85px;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
 
-  /* Compact stats for landscape */
-  .stats-compact {
-    display: flex;
-    gap: 0.5rem;
-    justify-content: space-around;
-    font-size: 0.65rem;
-  }
-}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                              /* Landscape Hint */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                .mobile-hint {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                    top: 50%;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                        left: 50%;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                            bottom: auto;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                transform: translate(-50%, -50%);
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    font-size: 0.875rem;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        padding: 10px 18px;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          }
 
-/* Extra Small Devices */
-@media screen and (max-width: 375px) {
-  .fire-button-left,
-  .fire-button-right {
-    width: 60px;
-    height: 60px;
-    font-size: 0.75rem;
-  }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            /* Hide title in landscape during gameplay */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              .landscape-hide {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  display: none !important;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    }
 
-  .fire-button-left {
-    left: 10px;
-  }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      /* Compact stats for landscape */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        .stats-compact {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            display: flex;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                gap: 0.5rem;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    justify-content: space-around;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        font-size: 0.8rem;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          }
 
-  .fire-button-right {
-    right: 10px;
-  }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          /* Extra Small Devices */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          @media screen and (max-width: 375px) {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            html {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                font-size: 16px !important;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  }
 
-  .mobile-hint {
-    font-size: 0.7rem;
-    padding: 6px 12px;
-  }
-}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    .fire-button-left,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      .fire-button-right {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          width: 80px;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              height: 80px;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  font-size: 1rem;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    }
 
-/* Tablet Portrait */
-@media screen and (min-width: 769px) and (max-width: 1024px) and (orientation: portrait) {
-  .fire-button-left,
-  .fire-button-right {
-    width: 90px;
-    height: 90px;
-    font-size: 1rem;
-  }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      .fire-button-left {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          left: 12px;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
 
-  .mobile-hint {
-    font-size: 0.875rem;
-  }
-}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              .fire-button-right {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  right: 12px;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    }
 
-/* Prevent text selection during touch */
-.no-select {
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-  -webkit-touch-callout: none;
-}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      .mobile-hint {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          font-size: 0.875rem;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              padding: 10px 18px;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                }
 
-/* Smooth transitions for orientation changes */
-@media screen and (max-width: 915px) {
-  * {
-    transition: none !important;
-  }
-}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                /* Tablet Portrait */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                @media screen and (min-width: 769px) and (max-width: 1024px) and (orientation: portrait) {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  html {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      font-size: 20px !important;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        }
 
-/* Safe area padding for notched devices */
-.safe-area-bottom {
-  padding-bottom: env(safe-area-inset-bottom, 0);
-}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          .fire-button-left,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            .fire-button-right {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                width: 110px;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    height: 110px;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        font-size: 1.25rem;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          }
 
-.safe-area-top {
-  padding-top: env(safe-area-inset-top, 0);
-}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            .mobile-hint {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                font-size: 1.125rem;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  }
 
-/* Prevent overscroll bounce on iOS */
-.prevent-bounce {
-  overscroll-behavior: none;
-  -webkit-overflow-scrolling: touch;
-}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  /* Prevent text selection during touch */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  .no-select {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    -webkit-user-select: none;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      -moz-user-select: none;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        -ms-user-select: none;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          user-select: none;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            -webkit-touch-callout: none;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
 
-/* Full-screen game wrapper */
-.fullscreen-game {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  overflow: hidden;
-}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            /* Smooth transitions for orientation changes */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @media screen and (max-width: 915px) {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              * {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  transition: none !important;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    }
 
-/* Loading indicator for touch */
-.touch-loading {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: #06b6d4;
-  font-size: 1.25rem;
-  font-weight: bold;
-  text-align: center;
-  z-index: 200;
-}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    /* Safe area padding for notched devices */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    .safe-area-bottom {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      padding-bottom: env(safe-area-inset-bottom, 0);
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      }
 
-/* Landscape-specific menu adjustments */
-@media screen and (max-width: 915px) and (orientation: landscape) {
-  .menu-container {
-    max-width: 60vw;
-    max-height: 90vh;
-    overflow-y: auto;
-  }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      .safe-area-top {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        padding-top: env(safe-area-inset-top, 0);
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        }
 
-  .menu-title {
-    font-size: 1.5rem !important;
-  }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        /* Prevent overscroll bounce on iOS */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        .prevent-bounce {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          overscroll-behavior: none;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            -webkit-overflow-scrolling: touch;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
 
-  .menu-button {
-    padding: 0.5rem 1rem !important;
-    font-size: 0.875rem !important;
-  }
-}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            /* Full-screen game wrapper */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            .fullscreen-game {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              position: fixed;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                top: 0;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  left: 0;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    right: 0;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      bottom: 0;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        overflow: hidden;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        }
 
-/* High contrast mode for better visibility */
-@media (prefers-contrast: high) {
-  .fire-button-left,
-  .fire-button-right {
-    border-width: 4px;
-  }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        /* Loading indicator for touch */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        .touch-loading {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          position: absolute;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            top: 50%;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              left: 50%;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                transform: translate(-50%, -50%);
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  color: #06b6d4;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    font-size: 1.25rem;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      font-weight: bold;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        text-align: center;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          z-index: 200;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          }
 
-  .touch-indicator {
-    border-width: 4px;
-  }
-}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          /* Landscape-specific menu adjustments */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          @media screen and (max-width: 915px) and (orientation: landscape) {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            .menu-container {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                max-width: 60vw;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    max-height: 90vh;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        overflow-y: auto;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          }
 
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  .touch-button,
-  .touch-indicator,
-  .fire-button-left,
-  .fire-button-right {
-    transition: none !important;
-    animation: none !important;
-  }
-}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            .menu-title {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                font-size: 1.5rem !important;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  }
 
-/* Haptic feedback visual */
-.haptic-pulse {
-  animation: haptic-flash 0.2s ease-out;
-}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    .menu-button {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        padding: 0.5rem 1rem !important;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            font-size: 0.875rem !important;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              }
 
-@keyframes haptic-flash {
-  0%, 100% {
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-  }
-  50% {
-    box-shadow: 0 4px 30px rgba(239, 68, 68, 0.8), 0 0 40px rgba(239, 68, 68, 0.6);
-  }
-}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              /* High contrast mode for better visibility */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @media (prefers-contrast: high) {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                .fire-button-left,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  .fire-button-right {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      border-width: 4px;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        }
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          .touch-indicator {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              border-width: 4px;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                }
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                /* Reduced motion */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                @media (prefers-reduced-motion: reduce) {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  .touch-button,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    .touch-indicator,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      .fire-button-left,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        .fire-button-right {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            transition: none !important;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                animation: none !important;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  }
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  /* Haptic feedback visual */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  .haptic-pulse {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    animation: haptic-flash 0.2s ease-out;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    }
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @keyframes haptic-flash {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0%, 100% {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              50% {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  box-shadow: 0 4px 30px rgba(239, 68, 68, 0.8), 0 0 40px rgba(239, 68, 68, 0.6);
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    }

@@ -771,46 +771,46 @@ const StellarStrike = () => {
       <div className="w-full h-screen flex flex-col bg-gradient-to-b from-slate-900 to-black overflow-hidden">
         {/* Title */}
         {(gameState === 'mainMenu' || gameState === 'shipSelection' || gameState === 'gameOver' || gameState === 'victory') && !isLandscape && (
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 text-center tracking-wider py-3 px-4 flex-shrink-0">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 text-center tracking-wider py-4 px-4 flex-shrink-0">
             STELLAR STRIKE
           </h1>
         )}
 
         {/* HUD */}
         {(gameState === 'playing' || gameState === 'paused' || gameState === 'levelTransition') && (
-          <div className={`mobile-hud bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 border-b-2 border-cyan-500/50 px-2 py-2 flex-shrink-0 ${isLandscape ? 'safe-area-top' : ''}`}>
-            <div className="grid grid-cols-4 gap-1 text-xs">
-              <div className="bg-black/60 px-1.5 py-1 rounded border border-cyan-500/50">
-                <div className="text-cyan-400 text-[9px]">SCR</div>
-                <div className="text-sm font-bold text-white">{score}</div>
+          <div className={`mobile-hud bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 border-b-2 border-cyan-500/50 px-3 py-3 flex-shrink-0 ${isLandscape ? 'safe-area-top' : ''}`}>
+            <div className="grid grid-cols-4 gap-2 text-sm sm:text-base">
+              <div className="bg-black/60 px-2 py-1.5 rounded border border-cyan-500/50">
+                <div className="text-cyan-400 text-xs sm:text-sm">SCORE</div>
+                <div className="text-lg sm:text-xl font-bold text-white">{score}</div>
               </div>
-              <div className="bg-black/60 px-1.5 py-1 rounded border border-red-500/50">
-                <div className="text-red-400 text-[9px]">LVS</div>
-                <div className="flex gap-0.5">
+              <div className="bg-black/60 px-2 py-1.5 rounded border border-red-500/50">
+                <div className="text-red-400 text-xs sm:text-sm">LIVES</div>
+                <div className="flex gap-1 flex-wrap">
                   {[...Array(lives)].map((_, i) => (
-                    <span key={i} className="text-xs">❤️</span>
+                    <span key={i} className="text-base sm:text-lg">❤️</span>
                   ))}
                 </div>
               </div>
-              <div className="bg-black/60 px-1.5 py-1 rounded border border-purple-500/50">
-                <div className="text-purple-400 text-[9px]">LVL</div>
-                <div className="text-sm font-bold text-white">{level}/6</div>
+              <div className="bg-black/60 px-2 py-1.5 rounded border border-purple-500/50">
+                <div className="text-purple-400 text-xs sm:text-sm">LVL</div>
+                <div className="text-lg sm:text-xl font-bold text-white">{level}/6</div>
               </div>
-              <div className="bg-black/60 px-1.5 py-1 rounded border border-yellow-500/50">
-                <div className="text-yellow-400 text-[9px]">KLL</div>
-                <div className="text-sm font-bold text-white">{enemiesKilled}/{levelConfig[level]?.enemiesRequired}</div>
+              <div className="bg-black/60 px-2 py-1.5 rounded border border-yellow-500/50">
+                <div className="text-yellow-400 text-xs sm:text-sm">KILLS</div>
+                <div className="text-lg sm:text-xl font-bold text-white">{enemiesKilled}/{levelConfig[level]?.enemiesRequired}</div>
               </div>
             </div>
             {!isLandscape && (
-              <div className="text-center mt-1">
-                <div className="text-xs font-bold text-cyan-300">{levelConfig[level]?.name}</div>
+              <div className="text-center mt-2">
+                <div className="text-base sm:text-lg font-bold text-cyan-300">{levelConfig[level]?.name}</div>
               </div>
             )}
             {(gameDataRef.current.spreadShot || gameDataRef.current.rapidFire || gameDataRef.current.shield) && (
-              <div className="flex gap-1 justify-center mt-1 flex-wrap text-[9px]">
-                {gameDataRef.current.spreadShot && <div className="bg-orange-600/80 px-1.5 py-0.5 rounded-full font-bold">⚡</div>}
-                {gameDataRef.current.rapidFire && <div className="bg-yellow-600/80 px-1.5 py-0.5 rounded-full font-bold">🔥</div>}
-                {gameDataRef.current.shield && <div className="bg-cyan-600/80 px-1.5 py-0.5 rounded-full font-bold">🛡️</div>}
+              <div className="flex gap-2 justify-center mt-2 flex-wrap text-xs sm:text-sm">
+                {gameDataRef.current.spreadShot && <div className="bg-orange-600/80 px-3 py-1 rounded-full font-bold">⚡</div>}
+                {gameDataRef.current.rapidFire && <div className="bg-yellow-600/80 px-3 py-1 rounded-full font-bold">🔥</div>}
+                {gameDataRef.current.shield && <div className="bg-cyan-600/80 px-3 py-1 rounded-full font-bold">🛡️</div>}
               </div>
             )}
           </div>
@@ -846,20 +846,20 @@ const StellarStrike = () => {
           {/* Level Transition */}
           {gameState === 'levelTransition' && (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/90 backdrop-blur-sm z-10 p-4">
-              <h2 className="text-3xl sm:text-4xl font-bold text-green-400 mb-3 animate-bounce">LEVEL {level} COMPLETE!</h2>
-              <p className="text-xl sm:text-2xl text-cyan-300">Level {level + 1}</p>
-              <p className="text-base sm:text-lg text-purple-400 mt-2">{levelConfig[level + 1]?.name}</p>
+              <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-green-400 mb-4 animate-bounce">LEVEL {level} COMPLETE!</h2>
+              <p className="text-2xl sm:text-3xl md:text-4xl text-cyan-300">Level {level + 1}</p>
+              <p className="text-xl sm:text-2xl md:text-3xl text-purple-400 mt-3">{levelConfig[level + 1]?.name}</p>
             </div>
           )}
 
           {/* Pause Screen */}
           {gameState === 'paused' && (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/90 backdrop-blur-sm z-10 p-4">
-              <h2 className="text-4xl font-bold text-cyan-400 mb-6">⏸ PAUSED</h2>
-              <div className="space-y-3 w-full max-w-sm px-4">
-                <button onClick={() => setGameState('playing')} className="w-full px-6 py-4 bg-cyan-600 hover:bg-cyan-500 text-white text-lg font-bold rounded-lg">▶ RESUME</button>
-                <button onClick={() => startGame(selectedShip)} className="w-full px-6 py-4 bg-purple-600 hover:bg-purple-500 text-white text-lg font-bold rounded-lg">🔄 RESTART</button>
-                <button onClick={returnToMainMenu} className="w-full px-6 py-4 bg-slate-600 hover:bg-slate-500 text-white text-lg font-bold rounded-lg">🏠 MENU</button>
+              <h2 className="text-5xl sm:text-6xl font-bold text-cyan-400 mb-10">⏸ PAUSED</h2>
+              <div className="space-y-4 w-full max-w-lg px-4">
+                <button onClick={() => setGameState('playing')} className="w-full px-8 py-6 bg-cyan-600 hover:bg-cyan-500 text-white text-2xl font-bold rounded-xl">▶ RESUME</button>
+                <button onClick={() => startGame(selectedShip)} className="w-full px-8 py-6 bg-purple-600 hover:bg-purple-500 text-white text-2xl font-bold rounded-xl">🔄 RESTART</button>
+                <button onClick={returnToMainMenu} className="w-full px-8 py-6 bg-slate-600 hover:bg-slate-500 text-white text-2xl font-bold rounded-xl">🏠 MENU</button>
               </div>
             </div>
           )}
@@ -868,20 +868,20 @@ const StellarStrike = () => {
           {gameState === 'mainMenu' && (
             <div className="menu-container absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 via-purple-900 to-black border-2 border-cyan-500 p-6">
               <div className="text-center mb-8 w-full max-w-lg">
-                <p className="text-cyan-300 text-lg mb-2">Defend the Galaxy</p>
-                <p className="text-purple-300 text-base mb-6">6 Levels • Epic Boss Battle</p>
+                <p className="text-cyan-300 text-xl sm:text-2xl mb-3">Defend the Galaxy</p>
+                <p className="text-purple-300 text-lg sm:text-xl mb-6">6 Levels • Epic Boss Battle</p>
               </div>
               
               <div className="w-full max-w-md px-4">
                 <button 
                   onClick={goToShipSelection} 
-                  className="w-full px-8 py-6 bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white text-2xl font-bold rounded-lg transition-all shadow-lg"
+                  className="w-full px-10 py-8 bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white text-3xl sm:text-4xl font-bold rounded-xl transition-all shadow-2xl"
                 >
                   🚀 START GAME
                 </button>
               </div>
               
-              <div className="text-cyan-300 text-center space-y-2 text-sm mt-8 w-full px-4">
+              <div className="text-cyan-300 text-center space-y-3 text-base sm:text-lg mt-10 w-full px-4">
                 <p>⌨️ Arrow Keys or Touch to Move</p>
                 <p>🎯 Fire Buttons or Spacebar</p>
                 <p>Collect power-ups!</p>
@@ -892,26 +892,26 @@ const StellarStrike = () => {
           {/* Ship Selection */}
           {gameState === 'shipSelection' && (
             <div className="menu-container absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 via-purple-900 to-black border-2 border-cyan-500 p-6 overflow-y-auto">
-              <h2 className="text-2xl sm:text-3xl font-bold text-yellow-400 mb-6">Choose Your Ship</h2>
-              <div className="flex gap-4 sm:gap-6 mb-8 flex-wrap justify-center">
-                <button onClick={() => startGame('blue')} className="flex flex-col items-center p-6 bg-cyan-900/50 border-2 border-cyan-500 rounded-lg hover:bg-cyan-800/50 hover:scale-105 transition-all min-w-[140px]">
-                  <div className="w-24 h-24 bg-cyan-500/20 rounded-lg flex items-center justify-center mb-3">
-                    <span className="text-5xl">🚀</span>
+              <h2 className="text-3xl sm:text-4xl font-bold text-yellow-400 mb-8">Choose Your Ship</h2>
+              <div className="flex gap-6 sm:gap-8 mb-10 flex-wrap justify-center">
+                <button onClick={() => startGame('blue')} className="flex flex-col items-center p-8 bg-cyan-900/50 border-3 border-cyan-500 rounded-xl hover:bg-cyan-800/50 hover:scale-105 transition-all min-w-[180px]">
+                  <div className="w-32 h-32 bg-cyan-500/20 rounded-xl flex items-center justify-center mb-4">
+                    <span className="text-7xl">🚀</span>
                   </div>
-                  <span className="text-cyan-400 font-bold text-base">BLUE</span>
-                  <span className="text-cyan-300 text-sm">STRIKER</span>
+                  <span className="text-cyan-400 font-bold text-xl">BLUE</span>
+                  <span className="text-cyan-300 text-lg">STRIKER</span>
                 </button>
-                <button onClick={() => startGame('red')} className="flex flex-col items-center p-6 bg-red-900/50 border-2 border-red-500 rounded-lg hover:bg-red-800/50 hover:scale-105 transition-all min-w-[140px]">
-                  <div className="w-24 h-24 bg-red-500/20 rounded-lg flex items-center justify-center mb-3">
-                    <span className="text-5xl">🔴</span>
+                <button onClick={() => startGame('red')} className="flex flex-col items-center p-8 bg-red-900/50 border-3 border-red-500 rounded-xl hover:bg-red-800/50 hover:scale-105 transition-all min-w-[180px]">
+                  <div className="w-32 h-32 bg-red-500/20 rounded-xl flex items-center justify-center mb-4">
+                    <span className="text-7xl">🔴</span>
                   </div>
-                  <span className="text-red-400 font-bold text-base">RED</span>
-                  <span className="text-red-300 text-sm">PHOENIX</span>
+                  <span className="text-red-400 font-bold text-xl">RED</span>
+                  <span className="text-red-300 text-lg">PHOENIX</span>
                 </button>
               </div>
               <button 
                 onClick={returnToMainMenu} 
-                className="px-8 py-3 bg-slate-600 hover:bg-slate-500 text-white text-lg font-bold rounded-lg"
+                className="px-10 py-4 bg-slate-600 hover:bg-slate-500 text-white text-xl font-bold rounded-lg"
               >
                 ← BACK
               </button>
@@ -921,16 +921,16 @@ const StellarStrike = () => {
           {/* Game Over */}
           {gameState === 'gameOver' && (
             <div className="menu-container absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-red-900 via-black to-black border-2 border-red-500 p-6 overflow-y-auto">
-              <h2 className="text-4xl sm:text-5xl font-bold text-red-500 mb-6 animate-pulse">GAME OVER</h2>
-              <div className="bg-black/60 p-6 rounded-lg mb-6 border border-red-500/50 w-full max-w-md">
-                <p className="text-2xl sm:text-3xl text-cyan-400 mb-2">Final Score</p>
-                <p className="text-5xl sm:text-6xl font-bold text-white text-center">{score}</p>
-                <p className="text-lg sm:text-xl text-purple-400 mt-2 text-center">Level {level}/6</p>
-                <p className="text-base sm:text-lg text-yellow-400 text-center">Enemies: {enemiesKilled}</p>
+              <h2 className="text-5xl sm:text-6xl md:text-7xl font-bold text-red-500 mb-8 animate-pulse">GAME OVER</h2>
+              <div className="bg-black/60 p-8 rounded-xl mb-8 border-2 border-red-500/50 w-full max-w-lg">
+                <p className="text-3xl sm:text-4xl text-cyan-400 mb-3">Final Score</p>
+                <p className="text-6xl sm:text-7xl font-bold text-white text-center mb-4">{score}</p>
+                <p className="text-2xl sm:text-3xl text-purple-400 mt-3 text-center">Level {level}/6</p>
+                <p className="text-xl sm:text-2xl text-yellow-400 text-center mt-2">Enemies: {enemiesKilled}</p>
               </div>
-              <div className="space-y-3 w-full max-w-md px-4">
-                <button onClick={() => startGame(selectedShip)} className="w-full px-6 py-4 bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white text-xl font-bold rounded-lg">🎮 PLAY AGAIN</button>
-                <button onClick={returnToMainMenu} className="w-full px-6 py-4 bg-slate-600 hover:bg-slate-500 text-white text-xl font-bold rounded-lg">🏠 MENU</button>
+              <div className="space-y-4 w-full max-w-lg px-4">
+                <button onClick={() => startGame(selectedShip)} className="w-full px-8 py-6 bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white text-2xl font-bold rounded-xl">🎮 PLAY AGAIN</button>
+                <button onClick={returnToMainMenu} className="w-full px-8 py-6 bg-slate-600 hover:bg-slate-500 text-white text-2xl font-bold rounded-xl">🏠 MENU</button>
               </div>
             </div>
           )}
@@ -965,8 +965,8 @@ const StellarStrike = () => {
               onMouseUp={handleFireRelease}
               onMouseLeave={handleFireRelease}
             >
-              <span className="text-2xl">🔥</span>
-              <span className="text-xs font-bold mt-1">FIRE</span>
+              <span className="text-4xl">🔥</span>
+              <span className="text-sm font-bold mt-1">FIRE</span>
             </button>
             
             <button 
@@ -977,8 +977,8 @@ const StellarStrike = () => {
               onMouseUp={handleFireRelease}
               onMouseLeave={handleFireRelease}
             >
-              <span className="text-2xl">🔥</span>
-              <span className="text-xs font-bold mt-1">FIRE</span>
+              <span className="text-4xl">🔥</span>
+              <span className="text-sm font-bold mt-1">FIRE</span>
             </button>
           </div>
         )}
@@ -987,7 +987,7 @@ const StellarStrike = () => {
         {gameState === 'playing' && (
           <button
             onClick={() => setGameState('paused')}
-            className="fixed top-4 right-4 z-50 w-12 h-12 bg-slate-700/80 hover:bg-slate-600 text-white rounded-full flex items-center justify-center text-xl font-bold border-2 border-cyan-500/50 shadow-lg"
+            className="fixed top-4 right-4 z-50 w-16 h-16 sm:w-14 sm:h-14 bg-slate-700/90 hover:bg-slate-600 text-white rounded-full flex items-center justify-center text-3xl sm:text-2xl font-bold border-3 border-cyan-500 shadow-xl shadow-cyan-500/50"
           >
             ⏸
           </button>
