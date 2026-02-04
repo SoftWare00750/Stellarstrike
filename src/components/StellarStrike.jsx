@@ -730,7 +730,6 @@ const StellarStrike = () => {
     game.player.x = Math.max(0, Math.min(1024 - game.player.width, x - game.player.width / 2));
     game.player.y = Math.max(0, Math.min(768 - game.player.height, y - game.player.height / 2));
     
-    // Update touch indicator position
     if (touchIndicatorRef.current) {
       touchIndicatorRef.current.style.left = `${touch.clientX}px`;
       touchIndicatorRef.current.style.top = `${touch.clientY}px`;
@@ -743,7 +742,6 @@ const StellarStrike = () => {
     
     shoot(gameDataRef.current);
     
-    // Start continuous firing
     if (fireIntervalRef.current) {
       clearInterval(fireIntervalRef.current);
     }
@@ -760,7 +758,6 @@ const StellarStrike = () => {
     }
   };
 
-  // Cleanup fire interval on unmount
   useEffect(() => {
     return () => {
       if (fireIntervalRef.current) {
@@ -770,195 +767,194 @@ const StellarStrike = () => {
   }, []);
 
   return (
-    <div className={`fullscreen-game prevent-bounce no-select ${isLandscape ? 'landscape-mode' : ''}`}>
-      <div className="game-container flex flex-col items-center justify-center min-h-screen w-full bg-gradient-to-b from-slate-900 to-black overflow-hidden">
-        <div className="w-full max-w-[1100px] min-h-screen flex flex-col p-2 sm:p-4 md:p-6">
-          {/* Title - Hide in landscape during gameplay */}
-          {(gameState === 'mainMenu' || gameState === 'shipSelection' || gameState === 'gameOver' || gameState === 'victory') && (
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 text-center tracking-wider mb-2 md:mb-4">
-              STELLAR STRIKE
-            </h1>
-          )}
+    <div className="fullscreen-game prevent-bounce no-select">
+      <div className="w-full h-screen flex flex-col bg-gradient-to-b from-slate-900 to-black overflow-hidden">
+        {/* Title */}
+        {(gameState === 'mainMenu' || gameState === 'shipSelection' || gameState === 'gameOver' || gameState === 'victory') && !isLandscape && (
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 text-center tracking-wider py-3 px-4 flex-shrink-0">
+            STELLAR STRIKE
+          </h1>
+        )}
 
-          {/* HUD - Optimized for landscape */}
-          {(gameState === 'playing' || gameState === 'paused' || gameState === 'levelTransition') && (
-            <div className={`mobile-hud bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 border border-cyan-500/50 rounded-lg p-2 md:p-3 mb-2 md:mb-3 ${isLandscape ? 'safe-area-top' : ''}`}>
-              <div className={`grid grid-cols-4 gap-1 sm:gap-2 text-xs sm:text-sm ${isLandscape ? 'stats-compact' : ''}`}>
-                <div className="bg-black/50 px-2 py-1 rounded border border-cyan-500/50">
-                  <div className="text-cyan-400 text-[10px] sm:text-xs">SCORE</div>
-                  <div className="text-sm sm:text-base md:text-lg font-bold text-white">{score}</div>
-                </div>
-                <div className="bg-black/50 px-2 py-1 rounded border border-red-500/50">
-                  <div className="text-red-400 text-[10px] sm:text-xs">LIVES</div>
-                  <div className="flex gap-0.5 sm:gap-1 flex-wrap">
-                    {[...Array(lives)].map((_, i) => (
-                      <span key={i} className="text-xs sm:text-sm">❤️</span>
-                    ))}
-                  </div>
-                </div>
-                <div className="bg-black/50 px-2 py-1 rounded border border-purple-500/50">
-                  <div className="text-purple-400 text-[10px] sm:text-xs">LVL</div>
-                  <div className="text-sm sm:text-base md:text-lg font-bold text-white">{level}/6</div>
-                </div>
-                <div className="bg-black/50 px-2 py-1 rounded border border-yellow-500/50">
-                  <div className="text-yellow-400 text-[10px] sm:text-xs">PROG</div>
-                  <div className="text-sm sm:text-base md:text-lg font-bold text-white">{enemiesKilled}/{levelConfig[level]?.enemiesRequired}</div>
+        {/* HUD */}
+        {(gameState === 'playing' || gameState === 'paused' || gameState === 'levelTransition') && (
+          <div className={`mobile-hud bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 border-b-2 border-cyan-500/50 px-2 py-2 flex-shrink-0 ${isLandscape ? 'safe-area-top' : ''}`}>
+            <div className="grid grid-cols-4 gap-1 text-xs">
+              <div className="bg-black/60 px-1.5 py-1 rounded border border-cyan-500/50">
+                <div className="text-cyan-400 text-[9px]">SCR</div>
+                <div className="text-sm font-bold text-white">{score}</div>
+              </div>
+              <div className="bg-black/60 px-1.5 py-1 rounded border border-red-500/50">
+                <div className="text-red-400 text-[9px]">LVS</div>
+                <div className="flex gap-0.5">
+                  {[...Array(lives)].map((_, i) => (
+                    <span key={i} className="text-xs">❤️</span>
+                  ))}
                 </div>
               </div>
-              {!isLandscape && (
-                <div className="text-center mt-1">
-                  <div className="text-xs sm:text-sm md:text-base font-bold text-cyan-300">{levelConfig[level]?.name}</div>
-                </div>
-              )}
-              {(gameDataRef.current.spreadShot || gameDataRef.current.rapidFire || gameDataRef.current.shield) && (
-                <div className="flex gap-1 justify-center mt-1 flex-wrap text-[10px] sm:text-xs">
-                  {gameDataRef.current.spreadShot && <div className="bg-orange-600/80 px-2 py-0.5 rounded-full font-bold">⚡</div>}
-                  {gameDataRef.current.rapidFire && <div className="bg-yellow-600/80 px-2 py-0.5 rounded-full font-bold">🔥</div>}
-                  {gameDataRef.current.shield && <div className="bg-cyan-600/80 px-2 py-0.5 rounded-full font-bold">🛡️</div>}
-                </div>
-              )}
+              <div className="bg-black/60 px-1.5 py-1 rounded border border-purple-500/50">
+                <div className="text-purple-400 text-[9px]">LVL</div>
+                <div className="text-sm font-bold text-white">{level}/6</div>
+              </div>
+              <div className="bg-black/60 px-1.5 py-1 rounded border border-yellow-500/50">
+                <div className="text-yellow-400 text-[9px]">KLL</div>
+                <div className="text-sm font-bold text-white">{enemiesKilled}/{levelConfig[level]?.enemiesRequired}</div>
+              </div>
             </div>
-          )}
-
-          {/* Game Canvas Container */}
-          <div ref={containerRef} className={`game-canvas-container relative flex-1 flex items-center justify-center ${isLandscape ? 'min-h-0' : 'min-h-[400px] md:min-h-[500px]'}`}>
-            {/* Touch Indicator */}
-            <div ref={touchIndicatorRef} className="touch-indicator" />
-            
-            <canvas
-              ref={canvasRef}
-              width={1024}
-              height={768}
-              className="touch-canvas border-2 border-cyan-500 rounded-lg shadow-2xl w-full h-auto"
-              style={{ 
-                display: gameState === 'playing' || gameState === 'paused' || gameState === 'levelTransition' ? 'block' : 'none',
-                maxWidth: '1024px',
-                maxHeight: isLandscape ? '100vh' : '768px'
-              }}
-              onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
-              onTouchEnd={handleTouchEnd}
-              onTouchCancel={handleTouchEnd}
-            />
-
-            {/* Mobile Hint */}
-            {gameState === 'playing' && showMobileHint && (
-              <div className="mobile-hint">
-                {isLandscape ? '↔️ Touch screen to move' : '👆 Touch screen to move ship'}
+            {!isLandscape && (
+              <div className="text-center mt-1">
+                <div className="text-xs font-bold text-cyan-300">{levelConfig[level]?.name}</div>
               </div>
             )}
-
-            {/* Level Transition */}
-            {gameState === 'levelTransition' && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/90 rounded-lg backdrop-blur-sm z-10">
-                <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold text-green-400 mb-3 animate-bounce">LEVEL {level} COMPLETE!</h2>
-                <p className="text-lg sm:text-xl md:text-2xl text-cyan-300">Advancing to Level {level + 1}</p>
-                <p className="text-base sm:text-lg md:text-xl text-purple-400 mt-2">{levelConfig[level + 1]?.name}</p>
-              </div>
-            )}
-
-            {/* Pause Screen */}
-            {gameState === 'paused' && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/90 rounded-lg backdrop-blur-sm z-10 p-4">
-                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-cyan-400 mb-6">⏸ PAUSED</h2>
-                <div className="space-y-2 w-full max-w-xs">
-                  <button onClick={() => setGameState('playing')} className="menu-button block w-full px-4 py-3 bg-cyan-600 hover:bg-cyan-500 text-white text-sm md:text-base font-bold rounded-lg transition-all">▶ RESUME</button>
-                  <button onClick={() => startGame(selectedShip)} className="menu-button block w-full px-4 py-3 bg-purple-600 hover:bg-purple-500 text-white text-sm md:text-base font-bold rounded-lg transition-all">🔄 RESTART</button>
-                  <button onClick={returnToMainMenu} className="menu-button block w-full px-4 py-3 bg-slate-600 hover:bg-slate-500 text-white text-sm md:text-base font-bold rounded-lg transition-all">🏠 MENU</button>
-                </div>
-              </div>
-            )}
-
-            {/* Main Menu */}
-            {gameState === 'mainMenu' && (
-              <div className={`menu-container absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 via-purple-900 to-black border-2 border-cyan-500 rounded-lg shadow-2xl p-4 overflow-y-auto`}>
-                <div className="text-center mb-6">
-                  <p className="text-cyan-300 text-sm md:text-base mb-1">Defend the Galaxy</p>
-                  <p className="text-purple-300 text-xs md:text-sm mb-4">6 Levels • Epic Boss Battle</p>
-                </div>
-                
-                <div className="space-y-3 w-full max-w-xs">
-                  <button 
-                    onClick={goToShipSelection} 
-                    className="menu-button block w-full px-6 py-4 bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white text-lg md:text-xl font-bold rounded-lg transition-all hover:scale-105 shadow-lg"
-                  >
-                    🚀 START GAME
-                  </button>
-                </div>
-                
-                <div className="text-cyan-300 text-center space-y-1 text-[10px] sm:text-xs md:text-sm mt-8">
-                  <p>⌨️ Arrow Keys or Touch Screen to Move</p>
-                  <p>🎯 Fire Buttons or Spacebar to Shoot</p>
-                  <p>ESC - Pause | Collect power-ups!</p>
-                </div>
-              </div>
-            )}
-
-            {/* Ship Selection */}
-            {gameState === 'shipSelection' && (
-              <div className={`menu-container absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 via-purple-900 to-black border-2 border-cyan-500 rounded-lg shadow-2xl p-4 overflow-y-auto`}>
-                <h2 className="menu-title text-lg sm:text-xl md:text-2xl font-bold text-yellow-400 mb-4">Choose Your Ship</h2>
-                <div className="flex gap-3 md:gap-4 mb-6">
-                  <button onClick={() => startGame('blue')} className="flex flex-col items-center p-3 md:p-4 bg-cyan-900/50 border-2 border-cyan-500 rounded-lg hover:bg-cyan-800/50 hover:scale-105 transition-all">
-                    <div className="w-16 h-16 md:w-20 md:h-20 bg-cyan-500/20 rounded-lg flex items-center justify-center mb-2">
-                      <span className="text-3xl md:text-4xl">🚀</span>
-                    </div>
-                    <span className="text-cyan-400 font-bold text-xs md:text-sm">BLUE STRIKER</span>
-                  </button>
-                  <button onClick={() => startGame('red')} className="flex flex-col items-center p-3 md:p-4 bg-red-900/50 border-2 border-red-500 rounded-lg hover:bg-red-800/50 hover:scale-105 transition-all">
-                    <div className="w-16 h-16 md:w-20 md:h-20 bg-red-500/20 rounded-lg flex items-center justify-center mb-2">
-                      <span className="text-3xl md:text-4xl">🔴</span>
-                    </div>
-                    <span className="text-red-400 font-bold text-xs md:text-sm">RED PHOENIX</span>
-                  </button>
-                </div>
-                <button 
-                  onClick={returnToMainMenu} 
-                  className="menu-button px-4 py-2 bg-slate-600 hover:bg-slate-500 text-white text-sm md:text-base font-bold rounded-lg transition-all"
-                >
-                  ← BACK
-                </button>
-              </div>
-            )}
-
-            {/* Game Over */}
-            {gameState === 'gameOver' && (
-              <div className={`menu-container absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-red-900 via-black to-black border-2 border-red-500 rounded-lg shadow-2xl p-4 overflow-y-auto`}>
-                <h2 className="menu-title text-3xl sm:text-5xl md:text-6xl font-bold text-red-500 mb-4 animate-pulse">GAME OVER</h2>
-                <div className="bg-black/50 p-4 rounded-lg mb-4 border border-red-500/50">
-                  <p className="text-xl sm:text-2xl md:text-3xl text-cyan-400 mb-1">Final Score</p>
-                  <p className="text-3xl sm:text-4xl md:text-5xl font-bold text-white text-center">{score}</p>
-                  <p className="text-sm sm:text-base md:text-lg text-purple-400 mt-1 text-center">Level {level}/6</p>
-                  <p className="text-xs sm:text-sm md:text-base text-yellow-400 text-center">Enemies: {enemiesKilled}</p>
-                </div>
-                <div className="space-y-2 w-full max-w-xs">
-                  <button onClick={() => startGame(selectedShip)} className="menu-button block w-full px-4 py-3 bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white text-sm md:text-base font-bold rounded-lg transition-all">🎮 PLAY AGAIN</button>
-                  <button onClick={returnToMainMenu} className="menu-button block w-full px-4 py-3 bg-slate-600 hover:bg-slate-500 text-white text-sm md:text-base font-bold rounded-lg transition-all">🏠 MENU</button>
-                </div>
-              </div>
-            )}
-
-            {/* Victory */}
-            {gameState === 'victory' && (
-              <div className={`menu-container absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-yellow-900 via-purple-900 to-black border-2 border-yellow-500 rounded-lg shadow-2xl p-4 overflow-y-auto`}>
-                <h2 className="menu-title text-3xl sm:text-5xl md:text-6xl font-bold text-yellow-400 mb-4 animate-bounce">🎉 VICTORY! 🎉</h2>
-                <p className="text-lg sm:text-xl md:text-2xl text-cyan-300 mb-3">You saved the galaxy!</p>
-                <div className="bg-black/50 p-4 rounded-lg mb-4 border border-yellow-500/50">
-                  <p className="text-xl sm:text-2xl md:text-3xl text-cyan-400 mb-1">Final Score</p>
-                  <p className="text-3xl sm:text-4xl md:text-5xl font-bold text-white text-center">{score}</p>
-                  <p className="text-sm sm:text-base md:text-lg text-green-400 mt-1 text-center">All 6 Levels Complete!</p>
-                  <p className="text-xs sm:text-sm md:text-base text-purple-400 text-center">Total Enemies: {enemiesKilled}</p>
-                </div>
-                <div className="space-y-2 w-full max-w-xs">
-                  <button onClick={() => startGame(selectedShip)} className="menu-button block w-full px-4 py-3 bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white text-sm md:text-base font-bold rounded-lg transition-all">🎮 PLAY AGAIN</button>
-                  <button onClick={returnToMainMenu} className="menu-button block w-full px-4 py-3 bg-slate-600 hover:bg-slate-500 text-white text-sm md:text-base font-bold rounded-lg transition-all">🏠 MENU</button>
-                </div>
+            {(gameDataRef.current.spreadShot || gameDataRef.current.rapidFire || gameDataRef.current.shield) && (
+              <div className="flex gap-1 justify-center mt-1 flex-wrap text-[9px]">
+                {gameDataRef.current.spreadShot && <div className="bg-orange-600/80 px-1.5 py-0.5 rounded-full font-bold">⚡</div>}
+                {gameDataRef.current.rapidFire && <div className="bg-yellow-600/80 px-1.5 py-0.5 rounded-full font-bold">🔥</div>}
+                {gameDataRef.current.shield && <div className="bg-cyan-600/80 px-1.5 py-0.5 rounded-full font-bold">🛡️</div>}
               </div>
             )}
           </div>
+        )}
+
+        {/* Game Canvas Container */}
+        <div ref={containerRef} className="game-canvas-container relative flex-1 flex items-center justify-center overflow-hidden">
+          <div ref={touchIndicatorRef} className="touch-indicator" />
+          
+          <canvas
+            ref={canvasRef}
+            width={1024}
+            height={768}
+            className="touch-canvas border-2 border-cyan-500 w-full h-full object-contain"
+            style={{ 
+              display: gameState === 'playing' || gameState === 'paused' || gameState === 'levelTransition' ? 'block' : 'none',
+              maxWidth: '100%',
+              maxHeight: '100%'
+            }}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onTouchCancel={handleTouchEnd}
+          />
+
+          {/* Mobile Hint */}
+          {gameState === 'playing' && showMobileHint && (
+            <div className="mobile-hint">
+              {isLandscape ? '↔️ Touch to move' : '👆 Touch screen to move'}
+            </div>
+          )}
+
+          {/* Level Transition */}
+          {gameState === 'levelTransition' && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/90 backdrop-blur-sm z-10 p-4">
+              <h2 className="text-3xl sm:text-4xl font-bold text-green-400 mb-3 animate-bounce">LEVEL {level} COMPLETE!</h2>
+              <p className="text-xl sm:text-2xl text-cyan-300">Level {level + 1}</p>
+              <p className="text-base sm:text-lg text-purple-400 mt-2">{levelConfig[level + 1]?.name}</p>
+            </div>
+          )}
+
+          {/* Pause Screen */}
+          {gameState === 'paused' && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/90 backdrop-blur-sm z-10 p-4">
+              <h2 className="text-4xl font-bold text-cyan-400 mb-6">⏸ PAUSED</h2>
+              <div className="space-y-3 w-full max-w-sm px-4">
+                <button onClick={() => setGameState('playing')} className="w-full px-6 py-4 bg-cyan-600 hover:bg-cyan-500 text-white text-lg font-bold rounded-lg">▶ RESUME</button>
+                <button onClick={() => startGame(selectedShip)} className="w-full px-6 py-4 bg-purple-600 hover:bg-purple-500 text-white text-lg font-bold rounded-lg">🔄 RESTART</button>
+                <button onClick={returnToMainMenu} className="w-full px-6 py-4 bg-slate-600 hover:bg-slate-500 text-white text-lg font-bold rounded-lg">🏠 MENU</button>
+              </div>
+            </div>
+          )}
+
+          {/* Main Menu */}
+          {gameState === 'mainMenu' && (
+            <div className="menu-container absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 via-purple-900 to-black border-2 border-cyan-500 p-6">
+              <div className="text-center mb-8 w-full max-w-lg">
+                <p className="text-cyan-300 text-lg mb-2">Defend the Galaxy</p>
+                <p className="text-purple-300 text-base mb-6">6 Levels • Epic Boss Battle</p>
+              </div>
+              
+              <div className="w-full max-w-md px-4">
+                <button 
+                  onClick={goToShipSelection} 
+                  className="w-full px-8 py-6 bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white text-2xl font-bold rounded-lg transition-all shadow-lg"
+                >
+                  🚀 START GAME
+                </button>
+              </div>
+              
+              <div className="text-cyan-300 text-center space-y-2 text-sm mt-8 w-full px-4">
+                <p>⌨️ Arrow Keys or Touch to Move</p>
+                <p>🎯 Fire Buttons or Spacebar</p>
+                <p>Collect power-ups!</p>
+              </div>
+            </div>
+          )}
+
+          {/* Ship Selection */}
+          {gameState === 'shipSelection' && (
+            <div className="menu-container absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 via-purple-900 to-black border-2 border-cyan-500 p-6 overflow-y-auto">
+              <h2 className="text-2xl sm:text-3xl font-bold text-yellow-400 mb-6">Choose Your Ship</h2>
+              <div className="flex gap-4 sm:gap-6 mb-8 flex-wrap justify-center">
+                <button onClick={() => startGame('blue')} className="flex flex-col items-center p-6 bg-cyan-900/50 border-2 border-cyan-500 rounded-lg hover:bg-cyan-800/50 hover:scale-105 transition-all min-w-[140px]">
+                  <div className="w-24 h-24 bg-cyan-500/20 rounded-lg flex items-center justify-center mb-3">
+                    <span className="text-5xl">🚀</span>
+                  </div>
+                  <span className="text-cyan-400 font-bold text-base">BLUE</span>
+                  <span className="text-cyan-300 text-sm">STRIKER</span>
+                </button>
+                <button onClick={() => startGame('red')} className="flex flex-col items-center p-6 bg-red-900/50 border-2 border-red-500 rounded-lg hover:bg-red-800/50 hover:scale-105 transition-all min-w-[140px]">
+                  <div className="w-24 h-24 bg-red-500/20 rounded-lg flex items-center justify-center mb-3">
+                    <span className="text-5xl">🔴</span>
+                  </div>
+                  <span className="text-red-400 font-bold text-base">RED</span>
+                  <span className="text-red-300 text-sm">PHOENIX</span>
+                </button>
+              </div>
+              <button 
+                onClick={returnToMainMenu} 
+                className="px-8 py-3 bg-slate-600 hover:bg-slate-500 text-white text-lg font-bold rounded-lg"
+              >
+                ← BACK
+              </button>
+            </div>
+          )}
+
+          {/* Game Over */}
+          {gameState === 'gameOver' && (
+            <div className="menu-container absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-red-900 via-black to-black border-2 border-red-500 p-6 overflow-y-auto">
+              <h2 className="text-4xl sm:text-5xl font-bold text-red-500 mb-6 animate-pulse">GAME OVER</h2>
+              <div className="bg-black/60 p-6 rounded-lg mb-6 border border-red-500/50 w-full max-w-md">
+                <p className="text-2xl sm:text-3xl text-cyan-400 mb-2">Final Score</p>
+                <p className="text-5xl sm:text-6xl font-bold text-white text-center">{score}</p>
+                <p className="text-lg sm:text-xl text-purple-400 mt-2 text-center">Level {level}/6</p>
+                <p className="text-base sm:text-lg text-yellow-400 text-center">Enemies: {enemiesKilled}</p>
+              </div>
+              <div className="space-y-3 w-full max-w-md px-4">
+                <button onClick={() => startGame(selectedShip)} className="w-full px-6 py-4 bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white text-xl font-bold rounded-lg">🎮 PLAY AGAIN</button>
+                <button onClick={returnToMainMenu} className="w-full px-6 py-4 bg-slate-600 hover:bg-slate-500 text-white text-xl font-bold rounded-lg">🏠 MENU</button>
+              </div>
+            </div>
+          )}
+
+          {/* Victory */}
+          {gameState === 'victory' && (
+            <div className="menu-container absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-yellow-900 via-purple-900 to-black border-2 border-yellow-500 p-6 overflow-y-auto">
+              <h2 className="text-4xl sm:text-5xl font-bold text-yellow-400 mb-6 animate-bounce">🎉 VICTORY! 🎉</h2>
+              <p className="text-2xl sm:text-3xl text-cyan-300 mb-4">Galaxy Saved!</p>
+              <div className="bg-black/60 p-6 rounded-lg mb-6 border border-yellow-500/50 w-full max-w-md">
+                <p className="text-2xl sm:text-3xl text-cyan-400 mb-2">Final Score</p>
+                <p className="text-5xl sm:text-6xl font-bold text-white text-center">{score}</p>
+                <p className="text-lg sm:text-xl text-green-400 mt-2 text-center">All 6 Levels Complete!</p>
+                <p className="text-base sm:text-lg text-purple-400 text-center">Total Enemies: {enemiesKilled}</p>
+              </div>
+              <div className="space-y-3 w-full max-w-md px-4">
+                <button onClick={() => startGame(selectedShip)} className="w-full px-6 py-4 bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white text-xl font-bold rounded-lg">🎮 PLAY AGAIN</button>
+                <button onClick={returnToMainMenu} className="w-full px-6 py-4 bg-slate-600 hover:bg-slate-500 text-white text-xl font-bold rounded-lg">🏠 MENU</button>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Mobile Fire Controls - Fixed Position */}
+        {/* Mobile Fire Controls */}
         {gameState === 'playing' && (
           <div className="mobile-controls safe-area-bottom">
             <button 
@@ -985,6 +981,16 @@ const StellarStrike = () => {
               <span className="text-xs font-bold mt-1">FIRE</span>
             </button>
           </div>
+        )}
+
+        {/* Pause Button - Always visible during gameplay */}
+        {gameState === 'playing' && (
+          <button
+            onClick={() => setGameState('paused')}
+            className="fixed top-4 right-4 z-50 w-12 h-12 bg-slate-700/80 hover:bg-slate-600 text-white rounded-full flex items-center justify-center text-xl font-bold border-2 border-cyan-500/50 shadow-lg"
+          >
+            ⏸
+          </button>
         )}
       </div>
     </div>
