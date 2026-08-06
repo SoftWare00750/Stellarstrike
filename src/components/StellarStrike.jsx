@@ -13,6 +13,7 @@ const StellarStrike = () => {
   const [selectedShip, setSelectedShip] = useState(null);
   const [showMobileHint, setShowMobileHint] = useState(true);
   const [isLandscape, setIsLandscape] = useState(false);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
   
   const gameLoopRef = useRef(null);
   const touchRef = useRef({ active: false, x: 0, y: 0, identifier: null });
@@ -66,6 +67,28 @@ const StellarStrike = () => {
     return () => {
       window.removeEventListener('resize', handleOrientationChange);
       window.removeEventListener('orientationchange', handleOrientationChange);
+    };
+  }, []);
+
+  // Detect phone/tablet (touch) vs laptop/desktop (keyboard) so the correct
+  // control scheme/instructions can be shown. Uses a combination of touch
+  // support + coarse pointer + lack of hover, rather than just screen width,
+  // so it also works correctly on large touch tablets and small desktop windows.
+  useEffect(() => {
+    const detectTouchDevice = () => {
+      const hasTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+      const coarsePointer = window.matchMedia('(pointer: coarse)').matches;
+      const noHover = window.matchMedia('(hover: none)').matches;
+      setIsTouchDevice(hasTouch && (coarsePointer || noHover));
+    };
+
+    detectTouchDevice();
+    window.addEventListener('resize', detectTouchDevice);
+    window.addEventListener('orientationchange', detectTouchDevice);
+
+    return () => {
+      window.removeEventListener('resize', detectTouchDevice);
+      window.removeEventListener('orientationchange', detectTouchDevice);
     };
   }, []);
 
@@ -396,7 +419,7 @@ const StellarStrike = () => {
   };
 
   const update = (game) => {
-    const currentSpeed = game.shield ? game.maxSpeed * 0.7 : game.player.speed;
+    const currentSpeed = game.shield ? game.player.maxSpeed * 0.7 : game.player.speed;
     
     if (game.keys['ArrowLeft']) game.player.x -= currentSpeed;
     if (game.keys['ArrowRight']) game.player.x += currentSpeed;
@@ -836,10 +859,12 @@ const StellarStrike = () => {
             onTouchCancel={handleTouchEnd}
           />
 
-          {/* Mobile Hint */}
+          {/* Control Hint */}
           {gameState === 'playing' && showMobileHint && (
             <div className="mobile-hint">
-              {isLandscape ? '↔️ Touch to move' : '👆 Touch screen to move'}
+              {isTouchDevice
+                ? (isLandscape ? '↔️ Touch to move' : '👆 Touch screen to move')
+                : '⌨️ Arrow Keys to move • Space to fire'}
             </div>
           )}
 
@@ -882,8 +907,17 @@ const StellarStrike = () => {
               </div>
               
               <div className="text-cyan-300 text-center space-y-3 text-base sm:text-lg mt-10 w-full px-4">
-                <p>⌨️ Arrow Keys or Touch to Move</p>
-                <p>🎯 Fire Buttons or Spacebar</p>
+                {isTouchDevice ? (
+                  <>
+                    <p>👆 Touch and Drag to Move</p>
+                    <p>🔥 Tap the FIRE Buttons to Shoot</p>
+                  </>
+                ) : (
+                  <>
+                    <p>⌨️ Arrow Keys to Move</p>
+                    <p>␣ Spacebar to Fire • Esc to Pause</p>
+                  </>
+                )}
                 <p>Collect power-ups!</p>
               </div>
             </div>
@@ -955,7 +989,7 @@ const StellarStrike = () => {
         </div>
 
         {/* Mobile Fire Controls */}
-        {gameState === 'playing' && (
+        {gameState === 'playing' && isTouchDevice && (
           <div className="mobile-controls safe-area-bottom">
             <button 
               className="fire-button-left touch-button"
