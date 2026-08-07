@@ -224,3 +224,30 @@ a {
     transform: scale(0.95);
   }
 }
+
+/* Modal fade/scale-in for Settings, How To Play, Credits */
+@keyframes modal-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+[role='dialog'] > div {
+  animation: modal-pop-in 0.18s ease-out;
+}
+
+/* Range slider sizing for the Settings modal (color comes from Tailwind's
+   accent-* utility classes already applied in JSX) */
+input[type='range'] {
+  height: 6px;
+  border-radius: 9999px;
+}
+
+input[type='range']:disabled {
+  opacity: 0.4;
+}

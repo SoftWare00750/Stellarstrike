@@ -24,7 +24,10 @@ export default {
         'glow-cyan': '0 0 20px rgba(0, 217, 255, 0.5)',
         'glow-purple': '0 0 20px rgba(139, 0, 255, 0.5)',
         'glow-red': '0 0 20px rgba(255, 8, 68, 0.5)',
-      }
+      },
+      borderWidth: {
+        '3': '3px',
+      },
     },
   },
   plugins: [],

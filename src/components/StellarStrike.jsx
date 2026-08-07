@@ -1,4 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
+import soundManager from '../utils/soundManager';
+import { SettingsModal, HowToPlayModal, CreditsModal } from './MenuModals';
+
+const HIGH_SCORE_KEY = 'stellarstrike:highScore';
 
 const StellarStrike = () => {
   const canvasRef = useRef(null);
@@ -14,6 +18,21 @@ const StellarStrike = () => {
   const [showMobileHint, setShowMobileHint] = useState(true);
   const [isLandscape, setIsLandscape] = useState(false);
   const [isTouchDevice, setIsTouchDevice] = useState(false);
+
+  // Welcome-screen overlays
+  const [activeModal, setActiveModal] = useState(null); // 'settings' | 'howToPlay' | 'credits' | null
+
+  // Audio settings (persisted via soundManager -> localStorage)
+  const [musicVolume, setMusicVolume] = useState(soundManager.settings.musicVolume);
+  const [sfxVolume, setSfxVolume] = useState(soundManager.settings.sfxVolume);
+  const [muted, setMuted] = useState(soundManager.settings.muted);
+
+  // High score, persisted locally
+  const [highScore, setHighScore] = useState(() => {
+    const stored = parseInt(localStorage.getItem(HIGH_SCORE_KEY) || '0', 10);
+    return Number.isFinite(stored) ? stored : 0;
+  });
+  const [isNewHighScore, setIsNewHighScore] = useState(false);
   
   const gameLoopRef = useRef(null);
   const touchRef = useRef({ active: false, x: 0, y: 0, identifier: null });
@@ -99,6 +118,38 @@ const StellarStrike = () => {
       return () => clearTimeout(timer);
     }
   }, [gameState, showMobileHint]);
+
+  // Background music follows the current screen / level
+  useEffect(() => {
+    if (gameState === 'mainMenu' || gameState === 'shipSelection') {
+      soundManager.playMusic('menu');
+    } else if (gameState === 'playing' || gameState === 'levelTransition') {
+      const track = levelConfig[level]?.bossLevel ? 'boss' : 'gameplay';
+      soundManager.playMusic(track);
+    } else if (gameState === 'victory') {
+      soundManager.playMusic('victory');
+    } else if (gameState === 'gameOver') {
+      soundManager.stopMusic();
+    }
+    // 'paused' intentionally keeps whatever track was already playing.
+  }, [gameState, level]);
+
+  // Keep score vs. saved high score in sync
+  useEffect(() => {
+    if (gameState === 'gameOver' || gameState === 'victory') {
+      if (score > highScore) {
+        setHighScore(score);
+        setIsNewHighScore(true);
+        try {
+          localStorage.setItem(HIGH_SCORE_KEY, String(score));
+        } catch (e) {
+          // ignore storage errors (e.g. private browsing quota)
+        }
+      } else {
+        setIsNewHighScore(false);
+      }
+    }
+  }, [gameState]);
 
   useEffect(() => {
     const loadImages = () => {
@@ -187,6 +238,7 @@ const StellarStrike = () => {
     const config = levelConfig[level];
     if (config && enemiesKilled >= config.enemiesRequired) {
       if (level < 6) {
+        soundManager.playSfx('levelUp');
         setShowLevelTransition(true);
         setGameState('levelTransition');
         setTimeout(() => {
@@ -204,6 +256,7 @@ const StellarStrike = () => {
   }, [enemiesKilled, level]);
 
   const startGame = (ship) => {
+    playClick();
     setSelectedShip(ship);
     setScore(0);
     setLives(3);
@@ -234,6 +287,7 @@ const StellarStrike = () => {
   };
 
   const returnToMainMenu = () => {
+    playClick();
     setSelectedShip(null);
     setGameState('mainMenu');
     setScore(0);
@@ -244,7 +298,41 @@ const StellarStrike = () => {
   };
 
   const goToShipSelection = () => {
+    playClick();
     setGameState('shipSelection');
+  };
+
+  // Plays a UI click sound and, on the very first call, unlocks audio
+  // playback (browsers require a user gesture before audio can autoplay).
+  const playClick = () => {
+    soundManager.unlock();
+    soundManager.playSfx('click');
+  };
+
+  const openModal = (name) => {
+    playClick();
+    setActiveModal(name);
+  };
+
+  const closeModal = () => {
+    playClick();
+    setActiveModal(null);
+  };
+
+  const handleMusicVolumeChange = (v) => {
+    setMusicVolume(v);
+    soundManager.setMusicVolume(v);
+  };
+
+  const handleSfxVolumeChange = (v) => {
+    setSfxVolume(v);
+    soundManager.setSfxVolume(v);
+  };
+
+  const handleToggleMuted = () => {
+    const nowMuted = soundManager.toggleMuted();
+    setMuted(nowMuted);
+    if (!nowMuted) soundManager.playSfx('click');
   };
 
   const shoot = (game) => {
@@ -253,6 +341,7 @@ const StellarStrike = () => {
     
     if (now - game.lastShot < fireRate) return;
     game.lastShot = now;
+    soundManager.playSfx('shoot');
 
     if (game.spreadShot) {
       for (let angle = -0.3; angle <= 0.3; angle += 0.3) {
@@ -399,7 +488,8 @@ const StellarStrike = () => {
     
     if (boss.shootTimer > boss.shootInterval) {
       boss.shootTimer = 0;
-      
+      soundManager.playSfx('bossShoot');
+
       for (let i = -1; i <= 1; i++) {
         const angle = Math.atan2(
           game.player.y - boss.y,
@@ -459,6 +549,7 @@ const StellarStrike = () => {
       p.y += p.speed;
       
       if (checkCollision(game.player, p)) {
+        soundManager.playSfx('powerUp');
         switch(p.type) {
           case 'spreadshot':
             game.spreadShot = true;
@@ -518,6 +609,7 @@ const StellarStrike = () => {
           e.health--;
           if (e.health <= 0) {
             createExplosion(game, e.x + e.width / 2, e.y + e.height / 2, e.isBoss ? 50 : 20);
+            soundManager.playSfx(e.isBoss ? 'bossExplosion' : 'explosion');
             setScore(s => s + e.points);
             setEnemiesKilled(k => k + 1);
             
@@ -534,12 +626,17 @@ const StellarStrike = () => {
           game.shield = false;
           game.shieldDuration = 0;
           createExplosion(game, e.x + e.width / 2, e.y + e.height / 2, 30);
+          soundManager.playSfx('hit');
           return false;
         } else {
           createExplosion(game, e.x + e.width / 2, e.y + e.height / 2, 30);
+          soundManager.playSfx('hit');
           setLives(l => {
             const newLives = l - 1;
-            if (newLives <= 0) setGameState('gameOver');
+            if (newLives <= 0) {
+              soundManager.playSfx('gameOver');
+              setGameState('gameOver');
+            }
             return newLives;
           });
           return false;
@@ -552,13 +649,17 @@ const StellarStrike = () => {
     for (let i = game.enemyBullets.length - 1; i >= 0; i--) {
       if (checkCollision(game.player, game.enemyBullets[i])) {
         game.enemyBullets.splice(i, 1);
+        soundManager.playSfx('hit');
         if (game.shield) {
           game.shield = false;
           game.shieldDuration = 0;
         } else {
           setLives(l => {
             const newLives = l - 1;
-            if (newLives <= 0) setGameState('gameOver');
+            if (newLives <= 0) {
+              soundManager.playSfx('gameOver');
+              setGameState('gameOver');
+            }
             return newLives;
           });
         }
@@ -882,31 +983,65 @@ const StellarStrike = () => {
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/90 backdrop-blur-sm z-10 p-4">
               <h2 className="text-5xl sm:text-6xl font-bold text-cyan-400 mb-10">⏸ PAUSED</h2>
               <div className="space-y-4 w-full max-w-lg px-4">
-                <button onClick={() => setGameState('playing')} className="w-full px-8 py-6 bg-cyan-600 hover:bg-cyan-500 text-white text-2xl font-bold rounded-xl">▶ RESUME</button>
-                <button onClick={() => startGame(selectedShip)} className="w-full px-8 py-6 bg-purple-600 hover:bg-purple-500 text-white text-2xl font-bold rounded-xl">🔄 RESTART</button>
-                <button onClick={returnToMainMenu} className="w-full px-8 py-6 bg-slate-600 hover:bg-slate-500 text-white text-2xl font-bold rounded-xl">🏠 MENU</button>
+                <button onClick={() => { playClick(); setGameState('playing'); }} className="w-full px-8 py-6 bg-cyan-600 hover:bg-cyan-500 text-white text-2xl font-bold rounded-xl transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300">▶ RESUME</button>
+                <button onClick={() => startGame(selectedShip)} className="w-full px-8 py-6 bg-purple-600 hover:bg-purple-500 text-white text-2xl font-bold rounded-xl transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-300">🔄 RESTART</button>
+                <button onClick={() => openModal('settings')} className="w-full px-8 py-6 bg-slate-700 hover:bg-slate-600 text-white text-2xl font-bold rounded-xl transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300">⚙️ SETTINGS</button>
+                <button onClick={returnToMainMenu} className="w-full px-8 py-6 bg-slate-600 hover:bg-slate-500 text-white text-2xl font-bold rounded-xl transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300">🏠 MENU</button>
               </div>
             </div>
           )}
 
           {/* Main Menu */}
           {gameState === 'mainMenu' && (
-            <div className="menu-container absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 via-purple-900 to-black border-2 border-cyan-500 p-6">
-              <div className="text-center mb-8 w-full max-w-lg">
+            <div className="menu-container absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 via-purple-900 to-black border-2 border-cyan-500 p-6 overflow-y-auto">
+              <img
+                src="/image/icon.png"
+                alt="Stellar Strike logo"
+                className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl shadow-2xl shadow-cyan-500/40 mb-4 border-2 border-cyan-400/60"
+              />
+
+              <div className="text-center mb-6 w-full max-w-lg">
                 <p className="text-cyan-300 text-xl sm:text-2xl mb-3">Defend the Galaxy</p>
-                <p className="text-purple-300 text-lg sm:text-xl mb-6">6 Levels • Epic Boss Battle</p>
+                <p className="text-purple-300 text-lg sm:text-xl mb-2">6 Levels • Epic Boss Battle</p>
+                {highScore > 0 && (
+                  <p className="text-yellow-400 text-base sm:text-lg font-bold mt-3">🏆 High Score: {highScore.toLocaleString()}</p>
+                )}
               </div>
               
               <div className="w-full max-w-md px-4">
                 <button 
                   onClick={goToShipSelection} 
-                  className="w-full px-10 py-8 bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white text-3xl sm:text-4xl font-bold rounded-xl transition-all shadow-2xl"
+                  className="w-full px-10 py-8 bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white text-3xl sm:text-4xl font-bold rounded-xl transition-all shadow-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
                 >
                   🚀 START GAME
                 </button>
               </div>
+
+              <div className="w-full max-w-md px-4 grid grid-cols-3 gap-3 mt-5">
+                <button
+                  onClick={() => openModal('settings')}
+                  className="flex flex-col items-center gap-1 px-3 py-4 bg-slate-800/80 hover:bg-slate-700 text-white rounded-xl border border-slate-600 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
+                >
+                  <span className="text-2xl">⚙️</span>
+                  <span className="text-xs sm:text-sm font-semibold">Settings</span>
+                </button>
+                <button
+                  onClick={() => openModal('howToPlay')}
+                  className="flex flex-col items-center gap-1 px-3 py-4 bg-slate-800/80 hover:bg-slate-700 text-white rounded-xl border border-slate-600 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-300"
+                >
+                  <span className="text-2xl">📖</span>
+                  <span className="text-xs sm:text-sm font-semibold">How To Play</span>
+                </button>
+                <button
+                  onClick={() => openModal('credits')}
+                  className="flex flex-col items-center gap-1 px-3 py-4 bg-slate-800/80 hover:bg-slate-700 text-white rounded-xl border border-slate-600 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-300"
+                >
+                  <span className="text-2xl">🌟</span>
+                  <span className="text-xs sm:text-sm font-semibold">Credits</span>
+                </button>
+              </div>
               
-              <div className="text-cyan-300 text-center space-y-3 text-base sm:text-lg mt-10 w-full px-4">
+              <div className="text-cyan-300 text-center space-y-3 text-base sm:text-lg mt-8 w-full px-4">
                 {isTouchDevice ? (
                   <>
                     <p>👆 Touch and Drag to Move</p>
@@ -928,16 +1063,24 @@ const StellarStrike = () => {
             <div className="menu-container absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 via-purple-900 to-black border-2 border-cyan-500 p-6 overflow-y-auto">
               <h2 className="text-3xl sm:text-4xl font-bold text-yellow-400 mb-8">Choose Your Ship</h2>
               <div className="flex gap-6 sm:gap-8 mb-10 flex-wrap justify-center">
-                <button onClick={() => startGame('blue')} className="flex flex-col items-center p-8 bg-cyan-900/50 border-3 border-cyan-500 rounded-xl hover:bg-cyan-800/50 hover:scale-105 transition-all min-w-[180px]">
-                  <div className="w-32 h-32 bg-cyan-500/20 rounded-xl flex items-center justify-center mb-4">
-                    <span className="text-7xl">🚀</span>
+                <button onClick={() => startGame('blue')} className="flex flex-col items-center p-8 bg-cyan-900/50 border-3 border-cyan-500 rounded-xl hover:bg-cyan-800/50 hover:scale-105 transition-all min-w-[180px] focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300">
+                  <div className="w-32 h-32 bg-cyan-500/20 rounded-xl flex items-center justify-center mb-4 overflow-hidden">
+                    {imagesLoaded && imagesRef.current.playerBlue?.naturalWidth > 0 ? (
+                      <img src={imagesRef.current.playerBlue.src} alt="" className="w-24 h-24 object-contain" />
+                    ) : (
+                      <span className="text-7xl">🚀</span>
+                    )}
                   </div>
                   <span className="text-cyan-400 font-bold text-xl">BLUE</span>
                   <span className="text-cyan-300 text-lg">STRIKER</span>
                 </button>
-                <button onClick={() => startGame('red')} className="flex flex-col items-center p-8 bg-red-900/50 border-3 border-red-500 rounded-xl hover:bg-red-800/50 hover:scale-105 transition-all min-w-[180px]">
-                  <div className="w-32 h-32 bg-red-500/20 rounded-xl flex items-center justify-center mb-4">
-                    <span className="text-7xl">🔴</span>
+                <button onClick={() => startGame('red')} className="flex flex-col items-center p-8 bg-red-900/50 border-3 border-red-500 rounded-xl hover:bg-red-800/50 hover:scale-105 transition-all min-w-[180px] focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300">
+                  <div className="w-32 h-32 bg-red-500/20 rounded-xl flex items-center justify-center mb-4 overflow-hidden">
+                    {imagesLoaded && imagesRef.current.playerRed?.naturalWidth > 0 ? (
+                      <img src={imagesRef.current.playerRed.src} alt="" className="w-24 h-24 object-contain" />
+                    ) : (
+                      <span className="text-7xl">🔴</span>
+                    )}
                   </div>
                   <span className="text-red-400 font-bold text-xl">RED</span>
                   <span className="text-red-300 text-lg">PHOENIX</span>
@@ -945,7 +1088,7 @@ const StellarStrike = () => {
               </div>
               <button 
                 onClick={returnToMainMenu} 
-                className="px-10 py-4 bg-slate-600 hover:bg-slate-500 text-white text-xl font-bold rounded-lg"
+                className="px-10 py-4 bg-slate-600 hover:bg-slate-500 text-white text-xl font-bold rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
               >
                 ← BACK
               </button>
@@ -955,16 +1098,20 @@ const StellarStrike = () => {
           {/* Game Over */}
           {gameState === 'gameOver' && (
             <div className="menu-container absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-red-900 via-black to-black border-2 border-red-500 p-6 overflow-y-auto">
-              <h2 className="text-5xl sm:text-6xl md:text-7xl font-bold text-red-500 mb-8 animate-pulse">GAME OVER</h2>
+              <h2 className="text-5xl sm:text-6xl md:text-7xl font-bold text-red-500 mb-6 animate-pulse">GAME OVER</h2>
+              {isNewHighScore && (
+                <p className="text-yellow-400 text-xl sm:text-2xl font-bold mb-4">🏆 New High Score!</p>
+              )}
               <div className="bg-black/60 p-8 rounded-xl mb-8 border-2 border-red-500/50 w-full max-w-lg">
                 <p className="text-3xl sm:text-4xl text-cyan-400 mb-3">Final Score</p>
                 <p className="text-6xl sm:text-7xl font-bold text-white text-center mb-4">{score}</p>
+                <p className="text-lg sm:text-xl text-yellow-500 text-center mb-2">High Score: {highScore.toLocaleString()}</p>
                 <p className="text-2xl sm:text-3xl text-purple-400 mt-3 text-center">Level {level}/6</p>
                 <p className="text-xl sm:text-2xl text-yellow-400 text-center mt-2">Enemies: {enemiesKilled}</p>
               </div>
               <div className="space-y-4 w-full max-w-lg px-4">
-                <button onClick={() => startGame(selectedShip)} className="w-full px-8 py-6 bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white text-2xl font-bold rounded-xl">🎮 PLAY AGAIN</button>
-                <button onClick={returnToMainMenu} className="w-full px-8 py-6 bg-slate-600 hover:bg-slate-500 text-white text-2xl font-bold rounded-xl">🏠 MENU</button>
+                <button onClick={() => startGame(selectedShip)} className="w-full px-8 py-6 bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white text-2xl font-bold rounded-xl transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300">🎮 PLAY AGAIN</button>
+                <button onClick={returnToMainMenu} className="w-full px-8 py-6 bg-slate-600 hover:bg-slate-500 text-white text-2xl font-bold rounded-xl transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300">🏠 MENU</button>
               </div>
             </div>
           )}
@@ -973,16 +1120,20 @@ const StellarStrike = () => {
           {gameState === 'victory' && (
             <div className="menu-container absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-yellow-900 via-purple-900 to-black border-2 border-yellow-500 p-6 overflow-y-auto">
               <h2 className="text-4xl sm:text-5xl font-bold text-yellow-400 mb-6 animate-bounce">🎉 VICTORY! 🎉</h2>
-              <p className="text-2xl sm:text-3xl text-cyan-300 mb-4">Galaxy Saved!</p>
+              <p className="text-2xl sm:text-3xl text-cyan-300 mb-2">Galaxy Saved!</p>
+              {isNewHighScore && (
+                <p className="text-yellow-400 text-lg sm:text-xl font-bold mb-4">🏆 New High Score!</p>
+              )}
               <div className="bg-black/60 p-6 rounded-lg mb-6 border border-yellow-500/50 w-full max-w-md">
                 <p className="text-2xl sm:text-3xl text-cyan-400 mb-2">Final Score</p>
                 <p className="text-5xl sm:text-6xl font-bold text-white text-center">{score}</p>
+                <p className="text-base sm:text-lg text-yellow-500 text-center mt-2">High Score: {highScore.toLocaleString()}</p>
                 <p className="text-lg sm:text-xl text-green-400 mt-2 text-center">All 6 Levels Complete!</p>
                 <p className="text-base sm:text-lg text-purple-400 text-center">Total Enemies: {enemiesKilled}</p>
               </div>
               <div className="space-y-3 w-full max-w-md px-4">
-                <button onClick={() => startGame(selectedShip)} className="w-full px-6 py-4 bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white text-xl font-bold rounded-lg">🎮 PLAY AGAIN</button>
-                <button onClick={returnToMainMenu} className="w-full px-6 py-4 bg-slate-600 hover:bg-slate-500 text-white text-xl font-bold rounded-lg">🏠 MENU</button>
+                <button onClick={() => startGame(selectedShip)} className="w-full px-6 py-4 bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white text-xl font-bold rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300">🎮 PLAY AGAIN</button>
+                <button onClick={returnToMainMenu} className="w-full px-6 py-4 bg-slate-600 hover:bg-slate-500 text-white text-xl font-bold rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300">🏠 MENU</button>
               </div>
             </div>
           )}
@@ -1020,12 +1171,39 @@ const StellarStrike = () => {
         {/* Pause Button - Always visible during gameplay */}
         {gameState === 'playing' && (
           <button
-            onClick={() => setGameState('paused')}
-            className="fixed top-4 right-4 z-50 w-16 h-16 sm:w-14 sm:h-14 bg-slate-700/90 hover:bg-slate-600 text-white rounded-full flex items-center justify-center text-3xl sm:text-2xl font-bold border-3 border-cyan-500 shadow-xl shadow-cyan-500/50"
+            onClick={() => { soundManager.playSfx('click'); setGameState('paused'); }}
+            aria-label="Pause game"
+            className="fixed top-4 right-4 z-50 w-16 h-16 sm:w-14 sm:h-14 bg-slate-700/90 hover:bg-slate-600 text-white rounded-full flex items-center justify-center text-3xl sm:text-2xl font-bold border-3 border-cyan-500 shadow-xl shadow-cyan-500/50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
           >
             ⏸
           </button>
         )}
+
+        {/* Quick mute toggle - Always visible during gameplay */}
+        {gameState === 'playing' && (
+          <button
+            onClick={handleToggleMuted}
+            aria-label={muted ? 'Unmute audio' : 'Mute audio'}
+            className="fixed top-4 right-24 sm:right-20 z-50 w-16 h-16 sm:w-14 sm:h-14 bg-slate-700/90 hover:bg-slate-600 text-white rounded-full flex items-center justify-center text-2xl sm:text-xl font-bold border-3 border-purple-500 shadow-xl shadow-purple-500/50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-300"
+          >
+            {muted ? '🔇' : '🔊'}
+          </button>
+        )}
+
+        {/* Settings / How To Play / Credits overlays */}
+        {activeModal === 'settings' && (
+          <SettingsModal
+            onClose={closeModal}
+            musicVolume={musicVolume}
+            sfxVolume={sfxVolume}
+            muted={muted}
+            onMusicVolumeChange={handleMusicVolumeChange}
+            onSfxVolumeChange={handleSfxVolumeChange}
+            onToggleMuted={handleToggleMuted}
+          />
+        )}
+        {activeModal === 'howToPlay' && <HowToPlayModal onClose={closeModal} />}
+        {activeModal === 'credits' && <CreditsModal onClose={closeModal} />}
       </div>
     </div>
   );
